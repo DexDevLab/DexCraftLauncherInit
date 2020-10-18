@@ -31,7 +31,7 @@ import net.dex.dexcraft.launcher.tools.ScriptFileReader;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.0.0-201013-357
+  * @version v2.0.0-201018-358
   *
   * Inicia um Preloader como um Splash para fazer
   * todos os downloads essenciais antes de abrir

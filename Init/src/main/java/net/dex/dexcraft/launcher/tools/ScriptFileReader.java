@@ -3,12 +3,12 @@ package net.dex.dexcraft.launcher.tools;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.Logger;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -36,6 +36,10 @@ public class ScriptFileReader
   private String outputEntry;
   private ArrayList<String> scriptArray;
   private int getIndex = 0;
+  private int entriesIndex = 0;
+  private boolean secondBracket = false;
+  private int indexToSkip = 0;
+  private String tabulation = "\t";
 
 
   private void setScriptFile(File file) { this.scriptFile = file; }
@@ -49,12 +53,13 @@ public class ScriptFileReader
       scriptArray = new ArrayList<>();
       setScriptFile(script);
       FileInputStream fis= new FileInputStream(getScriptFile().toString());
-      Scanner sc=new Scanner(fis);
+      Scanner sc = new Scanner(fis);
       while(sc.hasNextLine())
       {
         scriptArray.add(sc.nextLine().trim());
       }
       sc.close();
+      fis.close();
     }
     catch(IOException ex)
     {
@@ -100,6 +105,133 @@ public class ScriptFileReader
     getIndex = 0;
     scriptArray.clear();
     return outputList;
+  }
+
+  public void replaceEntry(File script, String category, String entry)
+  {
+    readScript(script);
+    outputList = new ArrayList<>();
+    scriptArray.forEach((line)->
+    {
+      if (line.contains(category))
+      {
+        indexToSkip = getIndex+2;
+      }
+      if ( (indexToSkip == 0) || (getIndex != indexToSkip) )
+      {
+        if(secondBracket)
+        {
+          if (line.equals("}"))
+          {
+            secondBracket = false;
+            tabulation = "\t";
+          }
+          else if (!line.equals("{"))
+          {
+            tabulation = "\t\t";
+          }
+        }
+        else
+        {
+          if( (getIndex == 0) || (scriptArray.size() == getIndex+1) )
+          {
+            tabulation = "";
+          }
+          else
+          {
+            secondBracket = true;
+            tabulation = "\t";
+          }
+        }
+        outputList.add(tabulation + line);
+      }
+      else
+      {
+        outputList.add("\t\t" + entry);
+      }
+      getIndex++;
+    });
+    getIndex = 0;
+    scriptArray.clear();
+    fileReplacer(script);
+  }
+
+  public void replaceEntry(File script, String category, ArrayList<String> entries)
+  {
+    readScript(script);
+    outputList = new ArrayList<>();
+    scriptArray.forEach((line)->
+    {
+      if (line.contains(category))
+      {
+        indexToSkip = getIndex+2;
+      }
+      if ( (indexToSkip == 0) || (getIndex != indexToSkip) )
+      {
+        if(secondBracket)
+        {
+          if (line.equals("}"))
+          {
+            secondBracket = false;
+            tabulation = "\t";
+          }
+          else if (!line.equals("{"))
+          {
+            tabulation = "\t\t";
+          }
+        }
+        else
+        {
+          if( (getIndex == 0) || (scriptArray.size() == getIndex+1) )
+          {
+            tabulation = "";
+          }
+          else
+          {
+            secondBracket = true;
+            tabulation = "\t";
+          }
+        }
+        outputList.add(tabulation + line);
+      }
+      else
+      {
+        outputList.add("\t\t" + entries.get(entriesIndex));
+        entriesIndex++;
+        if(entries.size() > entriesIndex)
+        {
+          indexToSkip++;
+        }
+      }
+      getIndex++;
+    });
+    getIndex = 0;
+    entriesIndex = 0;
+    indexToSkip = 0;
+    scriptArray.clear();
+    fileReplacer(script);
+  }
+
+  private void fileReplacer(File script)
+  {
+    try
+    {
+      File newFile = new File(script.toString() + ".new");
+      FileUtils.touch(newFile);
+      final PrintWriter pw = new PrintWriter(new FileWriter(newFile));
+      outputList.forEach((line) ->
+      {
+        pw.println(line);
+      });
+      pw.close();
+      FileUtils.deleteQuietly(script);
+      newFile.renameTo(script);
+    }
+    catch (IOException ex)
+    {
+      System.out.println("ERRO");
+    }
+    outputList.clear();
   }
 
 }
