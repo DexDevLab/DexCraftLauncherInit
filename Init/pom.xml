@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.dex.dexcraft.launcher.init</groupId>
     <artifactId>Init</artifactId>
-    <version>2.0.0-201018-358</version>
+    <version>2.0.0-201027-432</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -29,13 +29,20 @@
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
-            <version>2.5</version>
+            <version>2.8.0</version>
             <type>jar</type>
         </dependency>
         <dependency>
           <groupId>net.lingala.zip4j</groupId>
           <artifactId>zip4j</artifactId>
-          <version>2.6.3</version>
+          <version>2.5.2</version>
+          <type>jar</type>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+          <version>1.20</version>
+          <type>jar</type>
         </dependency>
     </dependencies>
     <build>

@@ -1,17 +1,18 @@
 package net.dex.dexcraft.launcher.init;
 
+import java.io.File;
 import java.io.IOException;
 import net.dex.dexcraft.launcher.check.UpdateCheck;
 import static net.dex.dexcraft.launcher.init.Init.alerts;
 import static net.dex.dexcraft.launcher.init.Init.changeStatus;
-import static net.dex.dexcraft.launcher.init.Init.logger;
 import static net.dex.dexcraft.launcher.init.Init.sfr;
 import static net.dex.dexcraft.launcher.init.Init.ui;
 import net.dex.dexcraft.launcher.tools.DexCraftFiles;
 import net.dex.dexcraft.launcher.tools.Download;
 import net.dex.dexcraft.launcher.tools.FileIO;
 import net.dex.dexcraft.launcher.tools.Install;
-import org.apache.commons.io.FileUtils;
+import net.dex.dexcraft.launcher.tools.Logger;
+import org.apache.commons.io.*;
 
 
 /**
@@ -20,9 +21,19 @@ import org.apache.commons.io.FileUtils;
  */
 public class Validate
 {
+  private static Logger logger = new Logger();
+
+  private static void setLogging()
+  {
+    logger.setLogLock(DexCraftFiles.logLock);
+    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
+    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
+    logger.setLogDir(DexCraftFiles.logFolder);
+  }
 
   public static void resources()
   {
+    setLogging();
     if ( (!DexCraftFiles.resFolder.exists()) || (DexCraftFiles.resFolder.listFiles().length == 0) )
     {
       changeStatus("Baixando recursos...");
@@ -71,7 +82,7 @@ public class Validate
         }
         try
         {
-          Thread.sleep(10);
+          Thread.sleep(25);
         }
         catch (InterruptedException ex)
         {
@@ -101,17 +112,19 @@ public class Validate
     }
   }
 
-
-  public static void launcher()
+  public static void provisionedComponent(File coreFile, File versionFile, String componentName, String categoryWithVersionData,
+                                          String componentCategoryURLOnCoreFile, File destinationDownloadDir,
+                                          File destinationDownloadFile, File destinationInstallDir)
   {
-    if(UpdateCheck.isOutdated(DexCraftFiles.versInstalledLauncherFile, sfr.getOutputEntry(DexCraftFiles.coreFile, "DexCraftLauncherVersion")))
+    String getProvisionedVersion = sfr.getOutputEntry(coreFile, categoryWithVersionData);
+    if(UpdateCheck.isOutdated(versionFile,categoryWithVersionData, getProvisionedVersion ))
     {
-      changeStatus("Baixando atualizações do Launcher...");
-      String dclURL = sfr.getOutputEntry(DexCraftFiles.coreFile, "DCLUpdate");
+      changeStatus("Baixando atualização - " + componentName + "...");
+      String dclURL = sfr.getOutputEntry(coreFile, componentCategoryURLOnCoreFile);
       Download downloadDCL = new Download();
       Thread threadDownloadDCL = new Thread(()->
       {
-        downloadDCL.zipResource(dclURL, DexCraftFiles.tempFolder, DexCraftFiles.updateLauncherZip);
+        downloadDCL.zipResource(dclURL, destinationDownloadDir, destinationDownloadFile);
       });
       threadDownloadDCL.start();
       while(threadDownloadDCL.isAlive())
@@ -125,13 +138,14 @@ public class Validate
           logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.launcher()");
         }
         logger.log("INFO", downloadDCL.getTimeEstimatedMsg());
-        changeStatus("Baixando atualizações do Launcher... " + downloadDCL.getProgressPercent() + "% concluído");
+        changeStatus("Baixando " + componentName + "..." + downloadDCL.getProgressPercent() + "% concluído");
       }
+      changeStatus("Baixando " + componentName + "..." + "100% concluído");
       ui.changeProgress(true, 80, 40);
       Install installDCL = new Install();
       Thread threadInstallDCL = new Thread(()->
       {
-        installDCL.downloadedZipResource(DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
+        installDCL.downloadedZipResource(destinationDownloadFile, destinationInstallDir);
       });
       threadInstallDCL.start();
       String checkFile = " ";
@@ -141,12 +155,8 @@ public class Validate
         {
           if (!installDCL.getInstallingFileName().equals(checkFile))
           {
-            changeStatus("Instalando os arquivos do Launcher... " + installDCL.getInstallingFilePosition() + " / " + installDCL.getTotalFilesQuantity());
+            changeStatus("Instalando - " + componentName + "..." + installDCL.getInstallingFilePosition() + " / " + installDCL.getTotalFilesQuantity());
             checkFile = installDCL.getInstallingFileName();
-          }
-          if (Integer.parseInt(installDCL.getInstallingFilePosition()) == (Integer.parseInt(installDCL.getTotalFilesQuantity())-1))
-          {
-            changeStatus("Instalando os arquivos do Launcher... " + installDCL.getTotalFilesQuantity() + " / " + installDCL.getTotalFilesQuantity());
           }
         }
         try
@@ -158,11 +168,8 @@ public class Validate
           logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.launcher()");
         }
       }
-      if(UpdateCheck.isOutdated(DexCraftFiles.versInstalledLauncherFile, sfr.getOutputEntry(DexCraftFiles.coreFile, "DexCraftLauncherVersion")))
-      {
-        logger.log("***ERRO***", "FALHA NA ATUALIZAÇÃO DO LAUNCHER");
-        alerts.tryAgain();
-      }
+      changeStatus("Instalando - " + componentName + "..." + installDCL.getTotalFilesQuantity() + " / " + installDCL.getTotalFilesQuantity());
+      sfr.replaceEntry(versionFile, categoryWithVersionData, getProvisionedVersion);
     }
   }
 }

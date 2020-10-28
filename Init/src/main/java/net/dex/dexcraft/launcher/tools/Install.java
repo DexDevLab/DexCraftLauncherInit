@@ -2,16 +2,16 @@ package net.dex.dexcraft.launcher.tools;
 
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.List;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.Cache;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.Logger;
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.FileHeader;
+import java.util.Enumeration;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.apache.commons.compress.utils.IOUtils;
 
 
 
@@ -22,14 +22,13 @@ import net.lingala.zip4j.model.FileHeader;
 public class Install
 {
   private Alerts alerts = new Alerts();
-  private static Logger logger = new Logger();
-  private ZipFile zipFile;
-  private List fileHeaderList;
+  private Logger logger = new Logger();
+  private ZipFile zipFile = null;
   private String installingFileName = "";
   private String totalFilesQuantity = "";
   private String installingFilePosition = "";
   private String progressPercent = "";
-  private NumberFormat formatter = new DecimalFormat("#0.0");
+  private NumberFormat formatter = new DecimalFormat("#0.00");
 
 
   public String getInstallingFileName() { return this.installingFileName; }
@@ -48,7 +47,7 @@ public class Install
 
   private void setProgressPercent(String percent) { this.progressPercent = percent; }
 
-  private static void setLogging()
+  private void setLogging()
   {
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
@@ -71,31 +70,70 @@ public class Install
       {
         logger.log("INFO", "Iniciando instalação do arquivo solicitado...");
         zipFile = new ZipFile(zipResource);
-        fileHeaderList = zipFile.getFileHeaders();
-        for (int i = 0; i < fileHeaderList.size(); i++)
+        int i = 0;
+        int fileQuantity = 0;
+        Enumeration<ZipArchiveEntry> zipEntries = zipFile.getEntriesInPhysicalOrder();
+        while (zipEntries.hasMoreElements())
         {
-          double fileQuantity = (double) fileHeaderList.size();
-          double percentBase = fileQuantity / 100;
-          double progress = ((i+1) / percentBase);
-          String progressOutput = formatter.format(progress);
-          String fileQuantityOutput = Long.toString(Math.round(fileQuantity));
-          FileHeader fileHeader = (FileHeader) fileHeaderList.get(i);
-          File f = new File (fileHeader.getFileName());
-          String fileName = (f.getAbsolutePath().substring(f.getAbsolutePath().lastIndexOf("\\")+1));
-          setInstallingFileName(fileName);
-          setTotalFilesQuantity(fileQuantityOutput);
-          setInstallingFilePosition(Integer.toString(i+1));
-          setProgressPercent(progressOutput);
-          logger.log("INFO", "Instalando: " + fileName);
-          logger.log("INFO", "Progresso: " + (i + 1) + " / " + fileHeaderList.size() +"..."+(progressOutput) + "%");
-          zipFile.extractFile(fileHeader, destinationDir.toString());
+          ZipArchiveEntry entry = zipEntries.nextElement();
+          if (!entry.isDirectory())
+          {
+            fileQuantity++;
+          }
+        }
+        zipEntries = zipFile.getEntriesInPhysicalOrder();
+        while (zipEntries.hasMoreElements())
+        {
+          ZipArchiveEntry entry = zipEntries.nextElement();
+          File outFile = new File(destinationDir,entry.getName());
+          if (!outFile.getParentFile().exists())
+          {
+            outFile.mkdirs();
+          }
+          if (entry.isDirectory())
+          {
+            outFile.mkdir();
+          }
+          else
+          {
+            i++;
+            double divisor = (double)fileQuantity / i ;
+            double progress = 100 / divisor;
+            String progressOutput = formatter.format(progress);
+            String fileQuantityOutput = Integer.toString(fileQuantity);
+            String entryName = entry.getName();
+            entryName = entryName.substring(entryName.lastIndexOf("/")+1, entryName.length());
+            setInstallingFileName(entryName);
+            setTotalFilesQuantity(fileQuantityOutput);
+            setInstallingFilePosition(Integer.toString(i));
+            setProgressPercent(progressOutput);
+            logger.log("INFO", "Instalando: " + getInstallingFileName());
+            logger.log("INFO", "Progresso: " + i + " / " + getTotalFilesQuantity() +"..."+ getProgressPercent() + "%");
+            InputStream zipStream = null;
+            OutputStream outFileStream = null;
+            zipStream = zipFile.getInputStream(entry);
+            outFileStream = new FileOutputStream(outFile);
+            try
+            {
+              IOUtils.copy(zipStream,outFileStream);
+            }
+            finally
+            {
+              IOUtils.closeQuietly(zipStream);
+              IOUtils.closeQuietly(outFileStream);
+            }
+          }
         }
       }
-      catch (ZipException e)
+      catch (IOException ex)
       {
-        logger.log(e, "***ERRO***", "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
-        alerts.exceptionHandler(e, "ERRO DURANTE A INSTALAÇÃO");
+        logger.log(ex, "***ERRO***", "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
+        alerts.exceptionHandler(ex, "ERRO DURANTE A INSTALAÇÃO");
         Cache.closeOnError();
+      }
+      finally
+      {
+        ZipFile.closeQuietly(zipFile);
       }
     }
   }

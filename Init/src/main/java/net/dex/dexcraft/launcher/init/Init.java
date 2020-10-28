@@ -31,7 +31,7 @@ import net.dex.dexcraft.launcher.tools.ScriptFileReader;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.0.0-201018-358
+  * @version v2.0.0-201027-432
   *
   * Inicia um Preloader como um Splash para fazer
   * todos os downloads essenciais antes de abrir
@@ -138,7 +138,14 @@ public class Init extends Application
               Validate.resources();
               ui.changeProgress(true, 70, 40);
               changeStatus("Verificando versão do DexCraft Launcher...");
-              Validate.launcher();
+              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.versionFile, "DexCraft Launcher",
+                       "DexCraftLauncherVersion", "DCLUpdate", DexCraftFiles.tempFolder,
+                       DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
+              ui.changeProgress(true, 80, 40);
+              changeStatus("Verificando versão do DexCraft Background Services...");
+              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.versionFile, "DexCraft Background Services",
+                       "DexCraftBackgroundServicesVersion", "DCBSUpdate", DexCraftFiles.tempFolder,
+                       DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
             }
             ui.changeProgress(true, 90, 40);
             if(!DexCraftFiles.coreFile.exists())

@@ -11,11 +11,11 @@ import java.io.File;
 public class DexCraftFiles
 {
   // Main program folders
-  public static File gameFolder = new File("C:/DexCraft");
-  public static File launcherFolder = new File (gameFolder + "/launcher");
-  public static File logFolder = new File(gameFolder + "/logs");
-  public static File runFolder = new File(gameFolder + "/run");
-  public static File tempFolder = new File (gameFolder + "/temp");
+  public static File mainFolder = new File("C:/DexCraft");
+  public static File logFolder = new File(mainFolder + "/logs");
+  public static File tempFolder = new File (mainFolder + "/temp");
+  public static File launcherFolder = new File (mainFolder + "/launcher");
+  public static File runFolder = new File(launcherFolder + "/run");
 
   // Launcher shortcuts
   public static File shortcutSrc = new File(launcherFolder + "/DexCraft Launcher.lnk");
@@ -28,7 +28,7 @@ public class DexCraftFiles
   public static File instanceLock = new File (runFolder + "/instance.dc");
   public static File instanceDCBSLock = new File (runFolder + "/instance.dcbs");
   public static File logLock = new File (logFolder + "/log.dc");
-  public static File offlineModeFile = new File (gameFolder + "/offlinemode.dc");
+  public static File offlineModeFile = new File (launcherFolder + "/offlinemode.dc");
 
   // Launcher main resources folders and files //
   public static File resFolder = new File(launcherFolder + "/res");
@@ -36,9 +36,10 @@ public class DexCraftFiles
 
   // CoreFile assets
   public static File coreFileLinkFile = new File (launcherFolder + "/cfurl.dc");
-  public static File coreFile = new File(gameFolder + "/src/corecfg.dc");
+  public static File coreFile = new File(launcherFolder+ "/src/corecfg.dc");
 
   // DexCraft Launcher assets
-  public static File versInstalledLauncherFile = new File (launcherFolder + "/launcher.dc");
+  public static File versionFile = new File (launcherFolder + "/versions.dc");
   public static File updateLauncherZip = new File (tempFolder + "/launcher.zip");
+  public static File updateDCBSZip = new File (tempFolder + "/dcbs.zip");
 }

@@ -10,8 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.*;
 
 
 /**
@@ -34,6 +33,7 @@ public class Download
   private Logger logger = new Logger();
   private FileIO file = new FileIO();
   private NumberFormat formatter = new DecimalFormat("#0.0");
+  private NumberFormat formatter2 = new DecimalFormat("#0.00");
 
   private String downloadedSize = "";
   private String totalSize = "";
@@ -150,31 +150,27 @@ public class Download
       URLConnection urlConnection = downloadURL.openConnection();
       urlConnection.connect();
       long fileSize = urlConnection.getContentLength();
-      double percentBase = fileSize/100;
       FileOutputStream output = FileUtils.openOutputStream(destZip);
-      try
+      startTime = System.currentTimeMillis();
+      byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+      double divisor = 0;
+      progress = 0;
+      count = 0;
+      n = 0;
+      currentTime = 0;
+      while (EOF != (n = input.read(buffer)))
       {
-        startTime = System.currentTimeMillis();
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-        count = 0;
-        n = 0;
-        progress = 0;
-        currentTime = 0;
-        while (EOF != (n = input.read(buffer)))
-        {
-
-          currentTime = System.currentTimeMillis();
-          progress = (count / percentBase);
-          output.write(buffer, 0, n);
-          count += n;
-          showProgress(progress, fileSize, count, startTime, currentTime);
-        }
-        output.close();
+        divisor = (double)fileSize / count ;
+        progress = 100 / divisor;
+        currentTime = System.currentTimeMillis();
+        output.write(buffer, 0, n);
+        count += n;
+        showProgress(progress, fileSize, count, startTime, currentTime);
       }
-      finally
-      {
-        IOUtils.closeQuietly(output);
-      }
+      progress = 100;
+      showProgress(progress, fileSize, fileSize, startTime, currentTime);
+      output.close();
+      input.close();
     }
     catch (MalformedURLException ex)
     {
@@ -183,10 +179,6 @@ public class Download
     catch (IOException ex)
     {
       alerts.exceptionHandler(ex, "EXCEÇÃO AO CRIAR O ARQUIVO A PARTIR DE UM URL");
-    }
-    finally
-    {
-      IOUtils.closeQuietly(input);
     }
   }
 
@@ -236,7 +228,7 @@ public class Download
         downloadedSizeCalculated = downloadedSize / 1024;
         downloadedSizeMeasurement = "KB";
       }
-      String progressOutput = formatter.format(progressPercent);
+      String progressOutput = formatter2.format(progressPercent);
       setProgressPercent(progressOutput);
       setDownloadedSize(downloadedSizeCalculated + downloadedSizeMeasurement);
       setTotalSize(fileSizeCalculated + fileSizeMeasurement);

@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import org.apache.commons.io.FileUtils;
-import static org.apache.commons.io.FileUtils.sizeOfDirectory;
+import org.apache.commons.io.*;
 
 
 
@@ -88,7 +87,7 @@ public class Logger
   public String getLogSize()
   {
     String logSizeMsg = "";
-    long size = sizeOfDirectory(this.logdir);
+    long size = FileUtils.sizeOfDirectory(this.logdir);
     long sizeCalculated = 0;
     String sizeMeasurement = "B";
     if (size >= 1048576)
@@ -175,7 +174,7 @@ public class Logger
       {
         try
         {
-          FileUtils.touch(getLogLock());
+          org.apache.commons.io.FileUtils.touch(getLogLock());
         }
         catch (IOException ex)
         {

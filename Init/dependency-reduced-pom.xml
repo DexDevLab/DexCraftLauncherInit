@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.dex.dexcraft.launcher.init</groupId>
   <artifactId>Init</artifactId>
-  <version>2.0.0-201013-357</version>
+  <version>2.0.0-201027-432</version>
   <build>
     <finalName>DexCraftLauncherInit</finalName>
     <plugins>

@@ -107,14 +107,7 @@ public class Alerts
   public boolean offline(Boolean offline)
   {
     setLogging();
-    if (offline)
-    {
-      offlineModeBefore = true;
-    }
-    else
-    {
-      offlineModeBefore = false;
-    }
+    offlineModeBefore = offline;
     FutureTask<String> offlineMode = new FutureTask<>(new OfflineMode());
     logger.log("INFO", "Exibindo Alerts.OfflineMode()...");
     Platform.runLater(offlineMode);

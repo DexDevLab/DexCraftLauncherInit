@@ -84,11 +84,23 @@ See the class ScriptFileReader for details.
 
 # Logbook #
  
-## v2.0.0-201013-357 ##
  
- Repository creation.
+ ## v2.0.0-201027-432 ##
+ I just don't know what happened to my libraries, but maven suddenly start refusing my zip library (net.lingala.zip4j) I was using. So I took it off and used a new one: Apache Commons Compress 1.20! Needed to do a lot of fixes on almost all classes because of it, and I still have no idea why does this happened so suddenly.
+ *UpdateCheck.java - Implementation to use a single local file showing all the file versions needed - before, there was 1 file to inform each of the packages (1 file storing client version, 1 to store launcher version etc).
+ *Init.java - Now DexCraft Init also checks for Background Services' updates! Changed the class to use a new implemented method to validate packages (see Validate.java).
+ *Validate.java  - Added logging() method just to keep the standards. I create the method provisionedComponent(), which can be used for every single check, download and update, since they use the same standard (zip file mentioned in the version file and in the Core File with download url).
+ *Alerts.java - Removed stupid boolean redundant logic  I did and just don't know why.
+ *DexCraftFiles.java - Changed some variables names. Changed offline mode lock file location. Removed version files variables are not used anymore. Added DexCraft Background Services update zip variable.
+ *Download.java - Changed download progress logic for a more accurate result.
+ *FileIO.java - Imports update.
+ *Install.java - Changed its entire logic to work correctly with Apache Commons Compress.
+ *Logger - Imports update.
+ *ScriptFileReader - Imports update.
+ *Preloader.fxml - I don't know why, but I needed to change fxml id version.
  
-## v2.0.0-201018-358 ##
- 
+ ## v2.0.0-201018-358 ##
 Added the functionality to edit single entries on the script files (check "DexCraft Launcher's main files and objects" topic for more references), or edit the entire category of a script file, if needed.
 
+## v2.0.0-201013-357 ##
+ Repository creation.
