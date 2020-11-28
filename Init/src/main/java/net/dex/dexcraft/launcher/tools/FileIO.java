@@ -23,8 +23,7 @@ import org.apache.commons.io.filefilter.*;
 
 
 /**
- *
- *
+ * Class for File Operations with logging.
  */
 public class FileIO
 {
@@ -35,7 +34,9 @@ public class FileIO
   private File dest;
   private static Logger logger;
 
-
+  /**
+   * Logger constructor on Class instance.
+   */
   public FileIO()
   {
     logger = new Logger();
@@ -45,6 +46,11 @@ public class FileIO
     logger.setLogDir(DexCraftFiles.logFolder);
   }
 
+  /**
+   * Copy file or folder operation.
+   * @param source the file or folder to be copied.
+   * @param destination the copy destination.
+   */
   public void copiar(File source, File destination)
   {
     src = new File (source.toString());
@@ -66,8 +72,7 @@ public class FileIO
         }
         catch (IOException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO EM FileIO.copiar(File, File)");
-          alerts.exceptionHandler(ex, "ERRO DURANTE A CÓPIA");
+          alerts.exceptionHandler(ex, "EXCEÇÃO EM FileIO.copiar(File, File)");
         }
       }
       else
@@ -84,16 +89,10 @@ public class FileIO
         {
           logger.log("INFO", "Copiando o arquivo \"" + src.toString() + "\" para o diretório \"" + dest.toString() + "\"");
           FileUtils.copyFileToDirectory(src, dest);
-//          Iterator<File> files = FileUtils.iterateFilesAndDirs(src,new WildcardFileFilter("*.*"), new WildcardFileFilter("*"));
-//          files.forEachRemaining((f)->
-//          {
-//            logger.log("INFO", "Copiado arquivo \"" + f + "");
-//          });
         }
         catch (IOException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO EM FileIO.copiar(File, File)");
-          alerts.exceptionHandler(ex, "ERRO DURANTE A CÓPIA");
+          alerts.exceptionHandler(ex, "EXCEÇÃO EM FileIO.copiar(File, File)");
         }
       }
       else
@@ -102,21 +101,20 @@ public class FileIO
         {
           logger.log("INFO", "Copiando o arquivo \"" + src.toString() + "\" para \"" + dest.toString() + "\"");
           FileUtils.copyFile(src, dest);
-//          Iterator<File> files = FileUtils.iterateFilesAndDirs(src,new WildcardFileFilter("*.*"), new WildcardFileFilter("*"));
-//          files.forEachRemaining((f)->
-//          {
-//            logger.log("INFO", "Copiado arquivo \"" + f + "");
-//          });
         }
         catch (IOException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO EM FileIO.copiar(File, File)");
-          alerts.exceptionHandler(ex, "ERRO DURANTE A CÓPIA");
+          alerts.exceptionHandler(ex, "EXCEÇÃO EM FileIO.copiar(File, File)");
         }
       }
     }
   }
 
+  /**
+   * Move file or folder operation.
+   * @param source the file or folder to be moved.
+   * @param destination the name and location of the file or folder.
+   */
   public void mover(File source, File destination)
   {
     src = new File (source.toString());
@@ -138,25 +136,13 @@ public class FileIO
     }
   }
 
-
-  public void criar(File source)
-  {
-    src = new File (source.toString());
-    try
-    {
-      FileUtils.touch(src);
-    }
-    catch (IOException ex)
-    {
-      alerts.exceptionHandler(ex, "FALHA NA OPERAÇÃO");
-    }
-    if(!src.exists())
-    {
-      error(4);
-    }
-  }
-
-
+  /**
+   * Delete a file or a folder recursively.
+   * @param source the file or folder to be deleted.
+   * @param includeParentDir if is desired to delete the
+   * parent directory (true) or keep it (false) during
+   * exclusion.
+   */
   public void excluir(File source, boolean includeParentDir)
   {
     src = new File (source.toString());
@@ -188,7 +174,7 @@ public class FileIO
             }
             catch (IOException ex)
             {
-              logger.log(ex, "***ERRO***", "EXCEÇÃO em FileIO.excluir(File, boolean)");
+              logger.log(ex, "EXCEÇÃO em FileIO.excluir(File, boolean)");
               error(3);
             }
           }
@@ -202,7 +188,7 @@ public class FileIO
       }
       catch (IOException ex)
       {
-        logger.log(ex, "***ERRO***", "EXCEÇÃO em FileIO.excluir(File, boolean)");
+        logger.log(ex, "EXCEÇÃO em FileIO.excluir(File, boolean)");
         error(3);
       }
       if (src.exists())
@@ -217,10 +203,16 @@ public class FileIO
     else
     {
       logger.log("***ERRO***", "SOURCE \"" + src.toString() + "\" não existe.");
-      error(5);
+      error(4);
     }
   }
 
+  /**
+   * Throw errors depending of the error code.
+   * @param errorCode the error code.
+   * @see net.dex.dexcraft.launcher.tools.FileIO.FileIOError
+   * @see #fileIoErrorCode
+   */
   private void error(int errorCode)
   {
     fileIoErrorCode = errorCode;
@@ -232,7 +224,12 @@ public class FileIO
     logger.log("INFO", "Alerta FileIOError() encerrado.");
   }
 
-
+  /**
+   * Prevents thread keep running even before user
+   * interaction.
+   * @param futureTask the alert to being observed by its
+   * Future Task
+   */
   private static void alertLock(FutureTask<String> futureTask)
   {
     while(!futureTask.isDone())
@@ -243,15 +240,21 @@ public class FileIO
       }
       catch (InterruptedException ex)
       {
-        logger.log(ex, "***ERRO***", "EXCEÇÃO EM FileIO.error().alertLock(FutureTask<String>) - THREAD INTERROMPIDA");
+        logger.log(ex,"EXCEÇÃO EM FileIO.error().alertLock(FutureTask<String>) - THREAD INTERROMPIDA");
       }
     }
   }
 
 
-  /////////////////////////////////////////////////////////////////////////////////////////
   /**
-   * Falhas de FileIO
+   * Calls an alert for errors during file
+   * operation:<br>
+   * 1 - error on copying files or folders (source is a folder but destination is a file).<br>
+   * 2 - error on moving files or folders (can't remove source).<br>
+   * 3 - error on deleting files or folders (source can't be removed).<br>
+   * 4 - error on deleting files or folders (source does not exist).
+   * @see #fileIoErrorCode
+   * @see #error(int)
    */
   class FileIOError implements Callable
   {
@@ -281,9 +284,6 @@ public class FileIO
           alerts.setContentText("Não foi possível remover SOURCE \"" + src.toString() + "\"");
           break;
         case 4:
-          alerts.setHeaderText("Falha durante processo de criar.");
-          alerts.setContentText("Não foi possível criar o arquivo SOURCE \"" + src.toString() + "\"");
-        case 5:
           alerts.setHeaderText("Falha durante processo de excluir");
           alerts.setContentText("SOURCE \"" + src.toString() + "\" não existe.");
           break;
@@ -296,7 +296,7 @@ public class FileIO
       if (result.get() == btnok)
       {
         fileIoErrorCode = 0;
-        Cache.closeOnError();
+        Close.close(1);
       }
       return null;
     }

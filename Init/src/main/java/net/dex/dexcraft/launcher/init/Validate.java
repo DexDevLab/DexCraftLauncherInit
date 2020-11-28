@@ -2,43 +2,40 @@ package net.dex.dexcraft.launcher.init;
 
 import java.io.File;
 import java.io.IOException;
-import net.dex.dexcraft.launcher.check.UpdateCheck;
+import net.dex.dexcraft.launcher.check.ProvisionedPackage;
 import static net.dex.dexcraft.launcher.init.Init.alerts;
 import static net.dex.dexcraft.launcher.init.Init.changeStatus;
-import static net.dex.dexcraft.launcher.init.Init.sfr;
+import static net.dex.dexcraft.launcher.init.Init.logger;
 import static net.dex.dexcraft.launcher.init.Init.ui;
 import net.dex.dexcraft.launcher.tools.DexCraftFiles;
 import net.dex.dexcraft.launcher.tools.Download;
 import net.dex.dexcraft.launcher.tools.FileIO;
 import net.dex.dexcraft.launcher.tools.Install;
-import net.dex.dexcraft.launcher.tools.Logger;
+import net.dex.dexcraft.launcher.tools.JSONUtility;
 import org.apache.commons.io.*;
 
-
 /**
- *
- *
+ * Wrap the update check, download, install and
+ * verify processes in one single class, with UI
+ * update.
  */
 public class Validate
 {
-  private static Logger logger = new Logger();
 
-  private static void setLogging()
-  {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
-
+  /**
+   * Validate the Launcher resources, which are the
+   * program backgrounds, runtime sounds etc.
+   */
   public static void resources()
   {
-    setLogging();
+    //Check if resource folder already exist. If not, download the resources again
     if ( (!DexCraftFiles.resFolder.exists()) || (DexCraftFiles.resFolder.listFiles().length == 0) )
     {
       changeStatus("Baixando recursos...");
-      String resURL = sfr.getOutputEntry(DexCraftFiles.coreFile, "LauncherResourceFile");
+      JSONUtility ju = new JSONUtility();
+      String resURL = ju.readValue(DexCraftFiles.coreFile, "LauncherUpdates", "LauncherResourceFile");
       Download downloadRes = new Download();
+      //Start a separated thread for download
       Thread threadDownloadRes = new Thread(()->
       {
         downloadRes.zipResource(resURL, DexCraftFiles.tempFolder, DexCraftFiles.resZip);
@@ -46,13 +43,14 @@ public class Validate
       threadDownloadRes.start();
       while(threadDownloadRes.isAlive())
       {
+        //UI output during download process
         try
         {
           Thread.sleep(1100);
         }
         catch (InterruptedException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.resources()");
+          logger.log(ex, "EXCEÇÃO em Validate.resources()");
         }
         logger.log("INFO", downloadRes.getTimeEstimatedMsg());
         changeStatus("Baixando recursos... " + downloadRes.getProgressPercent() + "% concluído");
@@ -60,6 +58,7 @@ public class Validate
       ui.changeProgress(true, 60, 40);
       changeStatus("Instalando recursos...");
       Install installRes = new Install();
+      //Start a separated thread for installing (zip file extraction)
       Thread threadInstallRes = new Thread(()->
       {
         installRes.downloadedZipResource(DexCraftFiles.resZip, DexCraftFiles.resFolder);
@@ -68,6 +67,7 @@ public class Validate
       String checkFile = " ";
       while(threadInstallRes.isAlive())
       {
+        //UI output during installing process
         if (!(installRes.getInstallingFileName()).equals(""))
         {
           if (!installRes.getInstallingFileName().equals(checkFile))
@@ -86,9 +86,10 @@ public class Validate
         }
         catch (InterruptedException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.resources()");
+          logger.log(ex, "EXCEÇÃO em Validate.resources()");
         }
       }
+      // throws an error if something happened and the resource folder isn't in its place
       if ( (!DexCraftFiles.resFolder.exists()) || (DexCraftFiles.resFolder.listFiles().length == 0) )
       {
         logger.log("***ERRO***", "RECURSO PROVISIONADO INDISPONÍVEL");
@@ -96,6 +97,8 @@ public class Validate
       }
     }
     logger.log("INFO", "Recursos instalados. Validando atalhos...");
+    /** Check if program shortcuts were created properly. If not, they will be installed:
+        desktop for all users, start menu and current user's desktop **/
     if ( (!DexCraftFiles.shortcutDefaultDesktop.exists()) | (!DexCraftFiles.shortcutProgramFolder.exists()) | (!DexCraftFiles.shortcutUserDesktop.exists()) )
     {
       FileIO file = new FileIO();
@@ -107,27 +110,61 @@ public class Validate
       }
       catch (IOException ex)
       {
-        logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.resources()");
+        logger.log(ex, "EXCEÇÃO em Validate.resources()");
       }
     }
   }
 
-  public static void provisionedComponent(File coreFile, File versionFile, String componentName, String categoryWithVersionData,
-                                          String componentCategoryURLOnCoreFile, File destinationDownloadDir,
+
+  /**
+   * Validates a provisioned component.<br>
+   * A provisioned component is a package with data
+   * which needs to be updated or compared with some
+   * local version.<br>
+   * This method checks if the current component is
+   * updated, and if not, downloads and install it.
+   * @param coreFile the script file containing the version data
+   * @param versionFile the local script file containing the current
+   * version data
+   * @param componentName the provisioned component's name
+   * @param objectName the provisioned component's JSON key. <br>
+   * Both script files (the online one and the local one)
+   * MUST use the same category, with the exactly same name.
+   * @param coreFileCategory the provisioned component's JSON object
+   * (category), on coreFile.
+   * @param versionFileCategory the provisioned component's JSON object
+   * (category), on the versionFile.
+   * @param componentCategoryURL the provisioned component's JSON object
+   * (category) on the coreFile, which contains the objectURL.
+   * @param objectURL the provisioned component's JSON key
+   * (category) on the coreFile,<br> which contains the update URL to
+   * download.
+   * @param destinationDownloadDir the folder which the file will be
+   * downloaded to
+   * @param destinationDownloadFile the component update file
+   * @param destinationInstallDir the directory to install the update
+   */
+  public static void provisionedComponent(File coreFile, File versionFile, String componentName,
+                                          String objectName, String coreFileCategory,
+                                          String versionFileCategory,
+                                          String componentCategoryURL,
+                                          String objectURL,
+                                          File destinationDownloadDir,
                                           File destinationDownloadFile, File destinationInstallDir)
   {
-    String getProvisionedVersion = sfr.getOutputEntry(coreFile, categoryWithVersionData);
-    if(UpdateCheck.isOutdated(versionFile,categoryWithVersionData, getProvisionedVersion ))
+    JSONUtility ju = new JSONUtility();
+    String getProvisionedVersion = ju.readValue(coreFile, coreFileCategory , objectName);
+    if(ProvisionedPackage.isOutdated(versionFile,versionFileCategory, objectName, getProvisionedVersion ))
     {
       changeStatus("Baixando atualização - " + componentName + "...");
-      String dclURL = sfr.getOutputEntry(coreFile, componentCategoryURLOnCoreFile);
-      Download downloadDCL = new Download();
-      Thread threadDownloadDCL = new Thread(()->
+      String componentURL = ju.readValue(coreFile, componentCategoryURL , objectURL);
+      Download downloadComponent = new Download();
+      Thread threadDownloadComponent = new Thread(()->
       {
-        downloadDCL.zipResource(dclURL, destinationDownloadDir, destinationDownloadFile);
+        downloadComponent.zipResource(componentURL, destinationDownloadDir, destinationDownloadFile);
       });
-      threadDownloadDCL.start();
-      while(threadDownloadDCL.isAlive())
+      threadDownloadComponent.start();
+      while(threadDownloadComponent.isAlive())
       {
         try
         {
@@ -135,28 +172,28 @@ public class Validate
         }
         catch (InterruptedException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.launcher()");
+          logger.log(ex, "EXCEÇÃO em Validate.launcher()");
         }
-        logger.log("INFO", downloadDCL.getTimeEstimatedMsg());
-        changeStatus("Baixando " + componentName + "..." + downloadDCL.getProgressPercent() + "% concluído");
+        logger.log("INFO", downloadComponent.getTimeEstimatedMsg());
+        changeStatus("Baixando " + componentName + "..." + downloadComponent.getProgressPercent() + "% concluído");
       }
       changeStatus("Baixando " + componentName + "..." + "100% concluído");
       ui.changeProgress(true, 80, 40);
-      Install installDCL = new Install();
-      Thread threadInstallDCL = new Thread(()->
+      Install installComponent = new Install();
+      Thread threadInstallComponent = new Thread(()->
       {
-        installDCL.downloadedZipResource(destinationDownloadFile, destinationInstallDir);
+        installComponent.downloadedZipResource(destinationDownloadFile, destinationInstallDir);
       });
-      threadInstallDCL.start();
+      threadInstallComponent.start();
       String checkFile = " ";
-      while(threadInstallDCL.isAlive())
+      while(threadInstallComponent.isAlive())
       {
-        if (!(installDCL.getInstallingFileName()).equals(""))
+        if (!(installComponent.getInstallingFileName()).equals(""))
         {
-          if (!installDCL.getInstallingFileName().equals(checkFile))
+          if (!installComponent.getInstallingFileName().equals(checkFile))
           {
-            changeStatus("Instalando - " + componentName + "..." + installDCL.getInstallingFilePosition() + " / " + installDCL.getTotalFilesQuantity());
-            checkFile = installDCL.getInstallingFileName();
+            changeStatus("Instalando - " + componentName + "..." + installComponent.getInstallingFilePosition() + " / " + installComponent.getTotalFilesQuantity());
+            checkFile = installComponent.getInstallingFileName();
           }
         }
         try
@@ -165,11 +202,12 @@ public class Validate
         }
         catch (InterruptedException ex)
         {
-          logger.log(ex, "***ERRO***", "EXCEÇÃO em Validate.launcher()");
+          logger.log(ex,"EXCEÇÃO em Validate.provisionedComponent()");
         }
       }
-      changeStatus("Instalando - " + componentName + "..." + installDCL.getTotalFilesQuantity() + " / " + installDCL.getTotalFilesQuantity());
-      sfr.replaceEntry(versionFile, categoryWithVersionData, getProvisionedVersion);
+      changeStatus("Instalando - " + componentName + "..." + installComponent.getTotalFilesQuantity() + " / " + installComponent.getTotalFilesQuantity());
+      ju.editValue(versionFile, versionFileCategory, objectName, getProvisionedVersion);
     }
   }
+
 }

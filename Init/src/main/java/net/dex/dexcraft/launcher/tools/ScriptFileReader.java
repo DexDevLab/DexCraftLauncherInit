@@ -12,8 +12,8 @@ import org.apache.commons.io.*;
 
 
 /**
- *
- *
+ * A Class to read and modify my
+ * own script file type.
  */
 public class ScriptFileReader
 {
@@ -21,6 +21,9 @@ public class ScriptFileReader
   private static Logger logger;
   private Alerts alerts;
 
+  /**
+   * Constructor (custom alerts and logging).
+   */
   public ScriptFileReader()
   {
     alerts = new Alerts();
@@ -42,10 +45,23 @@ public class ScriptFileReader
   private String tabulation = "\t";
 
 
+  /**
+   * Set the script file which be manipulated.
+   * @param file the script file.
+   */
   private void setScriptFile(File file) { this.scriptFile = file; }
 
+  /**
+   * Get the script file which be manipulated.
+   * @return the script file.
+   */
   private File getScriptFile() { return this.scriptFile; }
 
+
+  /**
+   * Perform a full reading of the script file.
+   * @param script the script file to be read
+   */
   private void readScript(File script)
   {
     try
@@ -63,12 +79,16 @@ public class ScriptFileReader
     }
     catch(IOException ex)
     {
-      logger.log(ex, "***ERRO***", "EXCEÇÃO em ScriptFileReader.readScript(File) - ERRO NA LEITURA");
-      alerts.exceptionHandler(ex, "EXCEÇÃO em ScriptFileReader.readScript(File)");
+      alerts.exceptionHandler(ex, "EXCEÇÃO EM ScriptFileReader.readScript(File)");
     }
   }
 
-
+  /**
+   * Returns a single value from the only field of a category.
+   * @param script the script file to be read
+   * @param category the category where the entry is located
+   * @return the entry.
+   */
   public String getOutputEntry(File script, String category)
   {
     readScript(script);
@@ -86,6 +106,12 @@ public class ScriptFileReader
     return outputEntry;
   }
 
+  /**
+   * Returns an entire list of the values from a category.
+   * @param script the script file.
+   * @param category the category to be read.
+   * @return the entries of a category
+   */
   public ArrayList<String> getOutputList(File script, String category)
   {
     readScript(script);
@@ -107,6 +133,12 @@ public class ScriptFileReader
     return outputList;
   }
 
+  /**
+   * Replaces a single value of a category to another.
+   * @param script the script file
+   * @param category the category to be read
+   * @param entry the entry to replace the current on the category.
+   */
   public void replaceEntry(File script, String category, String entry)
   {
     readScript(script);
@@ -156,6 +188,16 @@ public class ScriptFileReader
     fileReplacer(script);
   }
 
+  /**
+   * Replaces a all the values of a category to another.
+   * @param script the script file
+   * @param category the category to be read
+   * @param entries the entries to be replaced to. Each value from
+   * this list will be changed in order by index.<br> If the quantity of
+   * entries of this list is bigger than the current number of fields
+   * on the category, it will overwrite other categories or entries in the
+   * script file. That might cause errors.
+   */
   public void replaceEntry(File script, String category, ArrayList<String> entries)
   {
     readScript(script);
@@ -212,6 +254,14 @@ public class ScriptFileReader
     fileReplacer(script);
   }
 
+  /**
+   * Removes the old script file containing the old values
+   * and makes avaiable the new script file containing the
+   * new values.
+   * @param script the script file
+   * @see #replaceEntry(java.io.File, java.lang.String, java.util.ArrayList)
+   * @see #replaceEntry(java.io.File, java.lang.String, java.lang.String)
+   */
   private void fileReplacer(File script)
   {
     try
@@ -229,7 +279,9 @@ public class ScriptFileReader
     }
     catch (IOException ex)
     {
-      System.out.println("ERRO");
+      System.out.println("");
+      System.out.println("[***ERRO***] - EXCEÇÃO em Logger.fileReplacer(File) - " + ex.getMessage());
+      System.out.println("");
     }
     outputList.clear();
   }

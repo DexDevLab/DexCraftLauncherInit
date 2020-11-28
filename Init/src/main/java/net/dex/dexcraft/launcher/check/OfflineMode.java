@@ -7,28 +7,38 @@ import java.net.URL;
 import java.net.URLConnection;
 import net.dex.dexcraft.launcher.tools.Alerts;
 import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.FileIO;
+import net.dex.dexcraft.launcher.tools.JSONUtility;
 import net.dex.dexcraft.launcher.tools.Logger;
 
 
 /**
- *
- *
+ * Check the internet connection and if the program will
+ * run on Offline Mode.
+ * In the Offline Mode, the program won't download any files
+ * needed to run the Launcher. If the Launcher need some
+ * essential file to run and don't have downloaded it before,
+ * the program will close.
  */
-public class OfflineCheck
+public class OfflineMode
 {
   static Alerts alerts = new Alerts();
   static boolean keepOfflineMode = false;
   static Logger logger = new Logger();
+  static JSONUtility ju = new JSONUtility();
 
-  public static boolean OfflineCheck()
+  /**
+   * Check if Offline Mode was enabled before.
+   * @return if the program will keep running on Offline Mode
+   * or not, depending if it was enabled on previous sessions.
+   */
+  public static boolean IsRunning()
   {
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
     logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
     logger.setLogDir(DexCraftFiles.logFolder);
     logger.log("INFO", "Verificando status do Modo Offline...");
-    if (DexCraftFiles.offlineModeFile.exists())
+    if (ju.readValue(DexCraftFiles.launcherProperties, "LauncherProperties", "OfflineMode").equals("true"))
     {
       logger.log("INFO", "Modo Offline foi ativado na sessão anterior.");
       keepOfflineMode = alerts.offline(true);
@@ -36,16 +46,16 @@ public class OfflineCheck
     if (!keepOfflineMode)
     {
       logger.log("INFO", "Modo Offline DESATIVADO pelo usuário.");
-      if (DexCraftFiles.offlineModeFile.exists())
-      {
-        FileIO fio = new FileIO();
-        fio.excluir(DexCraftFiles.offlineModeFile, false);
-      }
+      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "OfflineMode", "false");
       testConnection();
     }
     return keepOfflineMode;
   }
 
+  /**
+   * Check internet connection. Throws exceptions if
+   * computer isn't connected to the internet.
+   */
   private static void testConnection()
   {
     try
@@ -58,24 +68,29 @@ public class OfflineCheck
     }
     catch (MalformedURLException ex)
     {
-      logger.log(ex, "***ERRO***", "EXCEÇÃO EM OfflineCheck.OfflineCheck()");
+      logger.log(ex,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
       internetCheckException();
     }
     catch (IOException ex1)
     {
-      logger.log(ex1, "***ERRO***", "EXCEÇÃO EM OfflineCheck.OfflineCheck()");
+      logger.log(ex1,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
       internetCheckException();
     }
   }
 
+  /**
+   * Asks to user if they will keep the program running on
+   * Offline Mode. If yes, the "OfflineMode" category in
+   * the launcher script file asset will be changed.
+   * @see net.dex.dexcraft.launcher.tools.DexCraftFiles.launcherProperties
+   */
   private static void internetCheckException()
   {
     logger.log("INFO", "O usuário optou por não ativar o Modo Offline, mas não há conexão com a internet.");
     keepOfflineMode = alerts.offline(false);
     if (keepOfflineMode)
     {
-      FileIO fio = new FileIO();
-      fio.criar(DexCraftFiles.offlineModeFile);
+      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties","OfflineMode", "true");
       logger.log("INFO", "Modo Offline ATIVADO pelo usuário.");
     }
     else

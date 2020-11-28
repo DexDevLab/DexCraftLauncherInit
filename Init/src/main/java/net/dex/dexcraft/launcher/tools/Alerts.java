@@ -20,7 +20,7 @@ import net.dex.dexcraft.launcher.init.Init;
 
 
 /**
- *
+ * Alert class with custom alerts.
  */
 public class Alerts
 {
@@ -29,11 +29,25 @@ public class Alerts
   private String exceptionHandlerContext;
   private Stage preloaderStage;
 
+  /** Inform if user has enabled the Offline Mode
+   * in previous program running.<br>
+   * This value is changed depending of the answer
+   * they give on the Offline Mode alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.OfflineMode
+   * @see #offline(java.lang.Boolean)
+   */
   private Boolean offlineModeBefore = false;
+  /**
+   * Inform if the user wants to keep the Launcher on
+   * Offline Mode or not.
+   */
   private Boolean keepOfflineMode = false;
 
   Logger logger = new Logger();
 
+  /**
+   * Logger basic constructor.
+   */
   private void setLogging()
   {
     logger.setLogLock(DexCraftFiles.logLock);
@@ -42,7 +56,12 @@ public class Alerts
     logger.setLogDir(DexCraftFiles.logFolder);
   }
 
-
+  /**
+   * Prevents thread keep running even before user
+   * interaction.
+   * @param futureTask the alert to being observed by its
+   * Future Task
+   */
   private void alertLock(FutureTask<String> futureTask)
   {
     setLogging();
@@ -54,12 +73,15 @@ public class Alerts
       }
       catch (InterruptedException ex)
       {
-        logger.log(ex, "***ERRO***", "EXCEÇÃO EM Alerts.alertLock(FutureTask<String> futureTask)");
+        logger.log(ex, "EXCEÇÃO EM Alerts.alertLock(FutureTask<String> futureTask)");
       }
     }
   }
 
-
+  /**
+   * Calls the "No Admin" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.NoAdmin
+   */
   public void noAdmin()
   {
     setLogging();
@@ -71,6 +93,10 @@ public class Alerts
     logger.log("INFO", "Alerts.NoAdmin() finalizado");
   }
 
+  /**
+   * Calls the "Try Again" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.TryAgain
+   */
   public void tryAgain()
   {
     setLogging();
@@ -82,6 +108,10 @@ public class Alerts
     logger.log("INFO", "Alerts.TryAgain() finalizado");
   }
 
+  /**
+   * Calls the "Double Instance" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.DoubleInstance
+   */
   public void doubleInstance()
   {
     setLogging();
@@ -93,6 +123,10 @@ public class Alerts
     logger.log("INFO", "Alerts.DoubleInstance() finalizado");
   }
 
+  /**
+   * Calls the "No match with the requirements" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.NoReq
+   */
   public void noReq()
   {
     setLogging();
@@ -104,6 +138,16 @@ public class Alerts
     logger.log("INFO", "Alerts.noArch() finalizado");
   }
 
+  /**
+   * Calls the "Offline Mode" alert.
+   * @param offline inform if the Launcher did not detected
+   * the internet connection (false) or the player enabled
+   * Offline Mode in other session (true)
+   * @return the user decision to keep the Launcher on
+   * Offline Mode(true) or not(false)
+   * @see net.dex.dexcraft.launcher.tools.Alerts.OfflineMode
+   * @see #keepOfflineMode
+   */
   public boolean offline(Boolean offline)
   {
     setLogging();
@@ -117,6 +161,11 @@ public class Alerts
     return keepOfflineMode;
   }
 
+
+  /**
+   * Calls the "No core file" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.NoCoreFile
+   */
   public void noCoreFile()
   {
     setLogging();
@@ -128,9 +177,31 @@ public class Alerts
     logger.log("INFO", "Alerts.noCoreFile() finalizado");
   }
 
+  /**
+   * Calls the "No Spd" alert.
+   * @see net.dex.dexcraft.launcher.tools.Alerts.NoSpd
+   */
+  public void noSpd()
+  {
+    setLogging();
+    FutureTask<String> noSpd = new FutureTask<>(new NoSpd());
+    logger.log("INFO", "Exibindo Alerts.NoSpd()...");
+    Platform.runLater(noSpd);
+    logger.log("INFO", "Aguardando resposta do usuário...");
+    alertLock(noSpd);
+    logger.log("INFO", "Alerts.NoSpd() finalizado");
+  }
+
+  /**
+   * Handles the exception message and throwable, putting it
+   * on a window for the user.
+   * @param ex the exception throwable
+   * @param exceptionMessage the message of the error
+   */
   public void exceptionHandler(Throwable ex, String exceptionMessage)
   {
     setLogging();
+    logger.log(ex, exceptionMessage);
     FutureTask<String> exceptionhandler = new FutureTask<>(new ExceptionHandler());
     logger.log("INFO", "Exibindo Alerts.exceptionHandler(Throwable, String)");
     exceptionHandlerThrowable = ex;
@@ -139,11 +210,12 @@ public class Alerts
     logger.log("INFO", "Aguardando resposta do usuário...");
     alertLock(exceptionhandler);
     logger.log("INFO", "Alerts.exceptionHandler(Throwable, String) finalizado");
-    Cache.closeOnError();
+    Close.close(1);
   }
 
   /**
-   * Cria a janela de exceções do Launcher
+   * Creates a customized window to show exceptions
+   * and errors to the user.
    */
   class ExceptionHandler implements Callable
   {
@@ -186,6 +258,13 @@ public class Alerts
     }
   }
 
+  /**
+   * This alert is shown when the admin file
+   * isn't found after being requested.
+   * This is seen as a critical error and
+   * the program can't keep running.
+   * @see net.dex.dexcraft.launcher.check.AdmCheck
+   */
   class NoAdmin implements Callable
   {
 
@@ -196,7 +275,7 @@ public class Alerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-      stage.setOnCloseRequest((e) -> {Cache.closeOnError();});
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro de Inicialização");
       alerts.setHeaderText("Sistema Anti-Palles™");
@@ -208,15 +287,18 @@ public class Alerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Cache.closeOnError();
+        Close.close(1);
       }
       return null;
     }
   }
 
-
   /**
-   * Janela genérica de falha
+   * This alert is shown when some critical
+   * error is triggered. It can be used when
+   * isn't needed a specific message for an
+   * error, but needs to close the program
+   * anyway.
    */
   class TryAgain implements Callable
   {
@@ -228,7 +310,7 @@ public class Alerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-      stage.setOnCloseRequest((e) -> {Cache.closeOnError();});
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro Crítico");
       alerts.setHeaderText("Houve um erro crítico durante a execução do DexCraft Launcher.");
@@ -238,7 +320,7 @@ public class Alerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Cache.closeOnError();
+        Close.close(1);
       }
       return null;
     }
@@ -246,8 +328,12 @@ public class Alerts
 
 
   /**
-   * Cria a janela de alerta que informa que o Launcher já
-   * está sendo executado.
+   * This alert is shown when the double instance
+   * lock file is found after the program being
+   * launched.
+   * The first program keeps running while the second
+   * is closed.
+   * @see net.dex.dexcraft.launcher.check.InstanceCheck
    */
   class DoubleInstance implements Callable
   {
@@ -270,6 +356,7 @@ public class Alerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
+        logger.log("INFO", "Encerrando...");
         System.exit(0);
       }
       return null;
@@ -278,7 +365,11 @@ public class Alerts
 
 
   /**
-   * Cria a janela de alerta que informa que o Sistema é de 32 bits.
+   * This alert is shown when the System doesn't
+   * find the minimum requirements to run any of the
+   * minecraft clients. The user is asked if they want
+   * to keep running the Launcher anyway.
+   * @see net.dex.dexcraft.launcher.check.ReqCheck
    */
   class NoReq implements Callable
   {
@@ -290,7 +381,7 @@ public class Alerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-      stage.setOnCloseRequest((e) -> {Cache.closeOnError();});
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro");
       alerts.setHeaderText("");
@@ -305,7 +396,7 @@ public class Alerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnnao)
       {
-        Cache.closeOnError();
+        Close.close(1);
       }
       return null;
     }
@@ -313,8 +404,15 @@ public class Alerts
 
 
   /**
-   * Cria a janela de alerta que informa que o Launcher não
-   * está sendo executado como Admin.
+   * This alert is shown when there is no internet
+   * connection (offlineModeBefore = false) or
+   * when the user decided to enable the Offline Mode
+   * last time they run the program (offlineModeBefore = true).
+   * This alert changes the value of the offlineModeBefore
+   * variable depending of what the user wants about keep
+   * the Launcher offline or not.
+   * @see #offlineModeBefore
+   * @see #offline(java.lang.Boolean)
    */
   class OfflineMode implements Callable
   {
@@ -326,7 +424,7 @@ public class Alerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-      stage.setOnCloseRequest((e) -> {Cache.closeOnError();});
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
       alerts.getButtonTypes().clear();
       ButtonType sim = null;
       ButtonType nao = null;
@@ -361,15 +459,17 @@ public class Alerts
       {
         if (!offlineModeBefore)
         {
-          Cache.closeOnError();
+          Close.close(1);
         }
       }
       return null;
     }
   }
 
+
   /**
-   * Cria a janela de alerta que informa da ausência do CoreFile.
+   * This alert is shown when the core file isn't
+   * found, even after it had been downloaded.
    */
   class NoCoreFile implements Callable
   {
@@ -381,7 +481,7 @@ public class Alerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-      stage.setOnCloseRequest((e) -> {Cache.closeOnError();});
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro do CoreFile");
       alerts.setHeaderText("O CoreFile não pôde ser baixado ou carregado no sistema. Causa desconhecida.");
@@ -392,7 +492,44 @@ public class Alerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Cache.closeOnError();
+        Close.close(1);
+      }
+      return null;
+    }
+  }
+
+  /**
+   * This alert is shown when the detected upload speed is below<br>
+   * the minium required to the DexCraft Backuground Services.
+   * @see net.dex.dexcraft.launcher.check.SystemRequirements
+   * @see net.dex.dexcraft.launcher.tools.Connection
+   */
+  class NoSpd implements Callable
+  {
+
+    @Override
+    public NoSpd call() throws Exception
+    {
+      Alert alerts = new Alert(Alert.AlertType.INFORMATION);
+      alerts.initModality(Modality.APPLICATION_MODAL);
+      Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
+      stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
+      stage.setOnCloseRequest((e) -> {Close.close(1);});
+      alerts.getButtonTypes().clear();
+      alerts.setTitle("Erro de Conexão");
+      alerts.setHeaderText("Baixa Velocidade de Upload");
+      alerts.setContentText("Foi detectada uma baixa velocidade de upload.\n"
+                            + "Seus dados de jogo podem não ser sincronizados.\n\n"
+                            + "Deseja continuar?");
+      ButtonType btnsim = new ButtonType("Sim");
+      ButtonType btnnao = new ButtonType("Não");
+      alerts.getButtonTypes().add(btnsim);
+      alerts.getButtonTypes().add(btnnao);
+      alerts.initOwner(preloaderStage);
+      Optional<ButtonType> result = alerts.showAndWait();
+      if (result.get() == btnnao)
+      {
+        Close.close(1);
       }
       return null;
     }

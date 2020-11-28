@@ -14,12 +14,11 @@ import org.apache.commons.io.*;
 
 
 /**
- *
+ * Class for downloading files and packages.
  *
  */
 public class Download
 {
-  /* URL do arquivo core */
   private URL downloadURL;
   private InputStream input;
   long count = 0;
@@ -44,30 +43,86 @@ public class Download
   private String progressPercent = "";
   private String downloadSpeed = "";
 
+  /**
+   * Get the downloaded file size.
+   * @return the size of the downloaded file so far, in bytes.
+   */
   public String getDownloadedSize() { return this.downloadedSize; }
 
-  public void setDownloadedSize(String value) { this.downloadedSize = value; }
+  /**
+   * Set the downloaded file size.
+   * @param value the size of the downloaded file so far, in bytes.
+   */
+  private void setDownloadedSize(String value) { this.downloadedSize = value; }
 
+  /**
+   * Get the size of the file on the source.
+   * @return the size of the file, in bytes.
+   */
   public String getTotalSize() { return this.totalSize; }
 
-  public void setTotalSize(String value) { this.totalSize = value; }
+  /**
+   * Set the size of the file on the source.
+   * @param value the size of the file, in bytes.
+   */
+  private void setTotalSize(String value) { this.totalSize = value; }
 
+  /**
+   * Get the text informing the size of the download so far,<br>
+   * how much time it will take to the downloaded be completed,<br>
+   * and the total download size.
+   * @return the download information and progress.
+   */
   public String getTimeEstimatedMsg() { return this.timeEstimatedMsg; }
 
-  public void setTimeEstimatedMsg(String value) { this.timeEstimatedMsg = value; }
+  /**
+   * Set the text informing the size of the download so far,<br>
+   * how much time it will take to the downloaded be completed,<br>
+   * and the total download size.
+   * @param value the download information and progress.
+   */
+  private void setTimeEstimatedMsg(String value) { this.timeEstimatedMsg = value; }
 
+  /**
+   * Get how many hours are needed to finish the download.
+   * @return the hours remaining.
+   */
   public String getEstimatedHours() { return this.estimatedHours; }
 
-  public void setEstimatedHours(String value) { this.estimatedHours = value; }
+  /**
+   * Set how many hours are needed to finish the download.
+   * @param value the hours remaining
+   */
+  private void setEstimatedHours(String value) { this.estimatedHours = value; }
 
+  /**
+   * Get how many minutes are needed to finish the download.
+   * @return the minutes remaining.
+   */
   public String getEstimatedMinutes() { return this.estimatedMinutes; }
 
-  public void setEstimatedMinutes(String value) { this.estimatedMinutes = value; }
+  /**
+   * Set how many minutes are needed to finish the download.
+   * @param value the minutes remaining
+   */
+  private void setEstimatedMinutes(String value) { this.estimatedMinutes = value; }
 
+  /**
+   * Get how many seconds are needed to finish the download.
+   * @return the seconds remaining.
+   */
   public String getEstimatedSeconds() { return this.estimatedSeconds; }
 
-  public void setEstimatedSeconds(String value) { this.estimatedSeconds = value; }
+  /**
+   * Set how many seconds are needed to finish the download.
+   * @param value the seconds remaining
+   */
+  private void setEstimatedSeconds(String value) { this.estimatedSeconds = value; }
 
+  /**
+   * Get the download progress so far.
+   * @return the progress value in percent.
+   */
   public String getProgressPercent()
   {
     if ((this.progressPercent == null) || (this.progressPercent.isEmpty()))
@@ -77,13 +132,27 @@ public class Download
     return this.progressPercent;
   }
 
-  public void setProgressPercent(String value) { this.progressPercent = value; }
+  /**
+   * Set the download progress so far.
+   * @param value the progress value in percent.
+   */
+  private void setProgressPercent(String value) { this.progressPercent = value; }
 
+  /**
+   * Get the download speed.
+   * @return the speed in a proper measure unit.
+   */
   public String getDownloadSpeed() { return this.downloadSpeed; }
 
+  /**
+   * Set the download speed.
+   * @param value the speed in a proper measure unit.
+   */
   public void setDownloadSpeed(String value) { this.downloadSpeed = value; }
 
-
+  /**
+   * Logger basic constructor.
+   */
   private void setLogging()
   {
     logger.setLogLock(DexCraftFiles.logLock);
@@ -92,6 +161,9 @@ public class Download
     logger.setLogDir(DexCraftFiles.logFolder);
   }
 
+  /**
+   * Method for downloading the CoreFile.
+   */
   public void coreFile()
   {
     setLogging();
@@ -104,21 +176,19 @@ public class Download
     try
     {
       logger.log("INFO", "Coletando link de download do CoreFile...");
-      ScriptFileReader sfr = new ScriptFileReader();
-      downloadURL = new URL (sfr.getOutputEntry(DexCraftFiles.coreFileLinkFile, "CoreFileURL"));
+      JSONUtility ju = new JSONUtility();
+      downloadURL = new URL(ju.readValue(DexCraftFiles.coreFileLinkFile, "URLs", "CoreFileURL"));
       logger.log("INFO", "Baixando CoreFile...");
       FileUtils.copyURLToFile(downloadURL, DexCraftFiles.coreFile);
       logger.log("INFO", "Download concluído...");
     }
     catch (MalformedURLException ex)
     {
-      logger.log(ex, "***ERRO***", "EXCEÇÃO EM Download.coreFile() - FALHA NO DOWNLOAD");
-      alerts.exceptionHandler(ex, "ERRO DURANTE O DOWNLOAD DO COREFILE");
+      alerts.exceptionHandler(ex, "EXCEÇÃO EM Download.coreFile()");
     }
     catch (IOException ex)
     {
-      logger.log(ex, "***ERRO***", "EXCEÇÃO EM Download.coreFile() - ERRO AO CRIAR O COREFILE A PARTIR DE UM URL");
-      alerts.exceptionHandler(ex, "EXCEÇÃO AO CRIAR O COREFILE A PARTIR DE UM URL");
+      alerts.exceptionHandler(ex, "EXCEÇÃO EM Download.coreFile()");
     }
     if (!DexCraftFiles.coreFile.exists())
     {
@@ -127,7 +197,14 @@ public class Download
     }
   }
 
-
+  /**
+   * Method for download a zip file.<br>
+   * Has some logic just to prevent trivial errors.
+   * @param url the download URL.
+   * @param destFolder the download destination folder.
+   * @param destZip the downloaded file location.
+   * @see #downloadWithProgress(java.lang.String, java.io.File)
+   */
   public void zipResource(String url, File destFolder, File destZip)
   {
     if (!destFolder.exists())
@@ -141,6 +218,12 @@ public class Download
     }
   }
 
+  /**
+   * Proceeds with the download of a zip file, showing<br>
+   * the progress as it advances.
+   * @param url the download URL
+   * @param destZip the downloaded file location.
+   */
   private void downloadWithProgress(String url, File destZip)
   {
     try
@@ -174,14 +257,22 @@ public class Download
     }
     catch (MalformedURLException ex)
     {
-      alerts.exceptionHandler(ex, "ERRO DURANTE O DOWNLOAD DO ARQUIVO");
+      alerts.exceptionHandler(ex, "EXCEÇÃO EM Download.downloadWithProgress(String, File)");
     }
     catch (IOException ex)
     {
-      alerts.exceptionHandler(ex, "EXCEÇÃO AO CRIAR O ARQUIVO A PARTIR DE UM URL");
+      alerts.exceptionHandler(ex, "EXCEÇÃO EM Download.downloadWithProgress(String, File)");
     }
   }
 
+  /**
+   * Updates the download progress using proper byte and time measures.
+   * @param progressPercent the progress, in percent.
+   * @param fileSize the download size.
+   * @param downloadedSize the size of the file downloaded so far.
+   * @param startTime the timestamp which defines when the download started.
+   * @param currentTime the current timestamp to compare how many miliseconds has passed.
+   */
   private void showProgress(double progressPercent, long fileSize, long downloadedSize, long startTime, long currentTime)
   {
     long downloadedTime = currentTime - startTime;

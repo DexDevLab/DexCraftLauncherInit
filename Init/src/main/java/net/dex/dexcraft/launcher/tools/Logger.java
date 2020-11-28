@@ -5,89 +5,95 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import net.dex.dexcraft.launcher.check.SystemRequirements;
 import org.apache.commons.io.*;
 
 
 
 /**
- *
- * @author Dex
- * @since 10/06/2019
- * @version 1.0.0-20191007-8
  * Generates a Log.
- *
  */
 public class Logger
 {
-  /**
-    * Formato de data e hora da mensagem do Log.
-    * @see #time
-    */
+
   private DateFormat df;
-  /**
-    * Coleta a data e hora atual da mensagem do Log.
-    * @see #df
-    */
   private String time;
-  /**
-   * Formato de data e hora do arquivo do Log.
-   * @see #time2
-   */
   private DateFormat df2;
-  /**
-    * Coleta a data e hora atual do arquivo do Log.
-    * @see #df
-    * @see #logname
-    */
-  private String time2;
-  /**
-    * Define o formato de nome para o novo Log gerado.
-    * @see #time2
-    * @see #logfile
-    */
   private File logname;
-  /* Diretório contendo os logs. */
   private File logdir;
   private File loglock;
-  /**
-    * Objeto de arquivo de Log com a data e hora gravados.
-    */
   private File logfile;
-  /**
-    * Separador de linha necessário para concatenar o texto
-    */
   private final String line = System.getProperty("line.separator");
+
   /**
-    * Armazena o tamanho do diretório de Logs para manipulação, em bytes.
-    */
-  private long logsize;
-
-
-
+   * Set the log lock. It is used to tell if the logger is running or not.
+   * @param lock the file which represents the log lock.
+   */
   public void setLogLock(File lock) { this.loglock = new File (lock.toString()); }
 
-  public File getLogLock() { return this.loglock; }
+  /**
+   * Get the log lock. It is used to tell if the logger is running or not.
+   * @return the file which represents the log lock.
+   */
+  private File getLogLock() { return this.loglock; }
 
+  /**
+   * Set the date/time format for to show on each log message.
+   * @param dateformat the date/format in string.
+   */
   public void setMessageFormat(String dateformat) { this.df = new SimpleDateFormat(dateformat); }
 
-  public String getMessageFormat() { return this.df.toString(); }
+  /**
+   * Get the date/time format for to show on each log message.
+   * @return the date/format in string.
+   */
+  private String getMessageFormat() { return this.df.toString(); }
 
+  /**
+   * Set the date/time format for to show on log filename.
+   * @param dateformat the date/format in string.
+   */
   public void setLogNameFormat(String dateformat) { this.df2 = new SimpleDateFormat(dateformat); }
 
-  public String getLogNameFormat() { return this.df2.toString(); }
+  /**
+   * Get the date/time format for to show on log filename.
+   * @return the date/format in string.
+   */
+  private String getLogNameFormat() { return this.df2.toString(); }
 
+  /**
+   * Set the log file.
+   * @param fil the log file.
+   */
   public void setLogFile(File fil) { this.logfile = fil; }
 
-  public File getLogFile() { return this.logfile; }
+  /**
+   * Get the log file.
+   * @return the full path of the log file.
+   */
+  private File getLogFile() { return this.logfile; }
 
+  /**
+   * Set the log folder where the logs will be stored.
+   * @param dir the folder name and its location.
+   */
   public void setLogDir(File dir) { this.logdir = dir; }
 
-  public File getLogDir() { return this.logdir; }
+  /**
+   * Set the log folder where the logs will be stored.
+   * @return the folder name and its location.
+   */
+  private File getLogDir() { return this.logdir; }
 
+  /**
+   * Get the size of the log directory, with proper
+   * measure unit.
+   * @return the size of the log directory.
+   */
   public String getLogSize()
   {
     String logSizeMsg = "";
-    long size = FileUtils.sizeOfDirectory(this.logdir);
+    long size = FileUtils.sizeOfDirectory(this.getLogDir());
     long sizeCalculated = 0;
     String sizeMeasurement = "B";
     if (size >= 1048576)
@@ -104,41 +110,63 @@ public class Logger
     return logSizeMsg;
   }
 
+  /**
+   * Check if the log lock is present.<br>
+   * If not, it is considered there is not
+   * a log file to this Logger instance.<br> The
+   * log file is created, with a header with
+   * System specifications and the log lock is created.
+   */
+  private void checkLock()
+  {
+    if (!getLogLock().exists())
+    {
+      try
+      {
+        FileUtils.touch(getLogLock());
+        if (this.logname == null)
+        {
+          this.logname = new File (this.df2.format(Calendar.getInstance().getTime()) + ".txt");
+          this.logfile = new File (this.logdir + File.separator + this.logname);
+        }
+        SystemRequirements req = new SystemRequirements();
+        FileUtils.writeStringToFile(this.logfile,"***********************************************"
+                                    +"***********************************************"
+                                    +"*************************\n"
+                                    +"DexCraft Launcher Logger Utility\n"
+                                    +"Executando em " + req.checkWindowsVersion() +" "+  req.checkSystemArch()
+                                    +", " + req.checkSystemRAMGB() + "GB RAM, Rodando Java " + req.checkJavaVersion()
+                                    +"\n***********************************************"
+                                    +"***********************************************"
+                                    +"*************************\n", "UTF-8", true);
+      }
+      catch (IOException ex)
+      {
+        System.out.println("");
+        System.out.println("[***ERRO***] - EXCEÇÃO em Logger.checkLock() - " + ex.getMessage());
+        System.out.println("");
+      }
+    }
+    else
+    {
+      this.logfile = new File(getLatestFileFromDir());
+    }
+  }
+
 
   /**
-   * Escreve o log no console e gera a mesma frase externamente.
+   * Write the log into the console and externally into the log file.
    *
-   * @param throwable - o throwable da exceção (se necessário)
-   * @param logtype - "INFO" para informações em geral e "ERRO" para erros
-   * @param logmsg - A mensagem a ser escrita
+   * @param throwable - the throwable in case of logging an error
+   * @param logmsg - the message to be logged
    */
-  public void log (Throwable throwable, String logtype, String logmsg)
+  public void log (Throwable throwable, String logmsg)
   {
     try
     {
-      if (!getLogLock().exists())
-      {
-        try
-        {
-          FileUtils.touch(getLogLock());
-        }
-        catch (IOException ex)
-        {
-          System.out.println("ERRO CRÍTICO: ERRO AO GERAR O ARQUIVO DE LOGLOCK.");
-        }
-      }
-      else
-      {
-        this.logfile = new File(getLatestFileFromDir(this.logdir.toString()));
-      }
-      if (this.logname == null)
-      {
-        this.logname = new File (this.df2.format(Calendar.getInstance().getTime()) + ".txt");
-        this.logfile = new File (this.logdir + File.separator + this.logname);
-      }
+      checkLock();
       this.time = this.df.format(Calendar.getInstance().getTime());
-      logtype = "[" + logtype + "]: ";
-//      logmsg = (line + logmsg + line + throwable.getMessage());
+      String logtype = "[***ERRO***]: ";
       Exception ex = new Exception(throwable);
       logmsg = (logmsg + line + ex);
       FileUtils.writeStringToFile(this.logfile, line, "UTF-8", true);
@@ -156,40 +184,25 @@ public class Logger
     }
     catch (IOException ex)
     {
-      System.out.println("ERRO CRÍTICO: ERRO AO GERAR O ARQUIVO DE LOG.");
+      System.out.println("");
+      System.out.println("[***ERRO***] - EXCEÇÃO em Logger.log(Throwable, String) - " + ex.getMessage());
+      System.out.println("");
     }
   }
 
   /**
-   * Escreve o log no console e gera a mesma frase externamente.
+   * Write the log into the console and externally into the log file.
    *
-   * @param logtype - "INFO" para informações em geral e "ERRO" para erros
-   * @param logmsg - A mensagem a ser escrita
+   * @param logtype - the type of information which is being logged:<br>
+   * "INFO" - for general information<br>
+   * "ERRO" - for errors
+   * @param logmsg - the message to be logged
    */
   public void log (String logtype, String logmsg)
   {
     try
     {
-      if (!getLogLock().exists())
-      {
-        try
-        {
-          org.apache.commons.io.FileUtils.touch(getLogLock());
-        }
-        catch (IOException ex)
-        {
-          System.out.println("ERRO CRÍTICO: ERRO AO GERAR O ARQUIVO DE LOGLOCK.");
-        }
-      }
-      else
-      {
-        this.logfile = new File(getLatestFileFromDir(this.logdir.toString()));
-      }
-      if (this.logname == null)
-      {
-        this.logname = new File (this.df2.format(Calendar.getInstance().getTime()) + ".txt");
-        this.logfile = new File (this.logdir + File.separator + this.logname);
-      }
+      checkLock();
       this.time = this.df.format(Calendar.getInstance().getTime());
       String finalmsg = "";
       logtype = "[" + logtype + "]: ";
@@ -209,14 +222,20 @@ public class Logger
     }
     catch (IOException ex)
     {
-      System.out.println("ERRO CRÍTICO: ERRO AO GERAR O ARQUIVO DE LOG.");
+      System.out.println("");
+      System.out.println("[***ERRO***] - EXCEÇÃO em Logger.log(String, String) - " + ex.getMessage());
+      System.out.println("");
     }
   }
 
-
-  private String getLatestFileFromDir(String dirPath)
+  /**
+   * Get the most recently modified file
+   * from the log folder.
+   * @return the log file currently being used on logger.
+   */
+  private String getLatestFileFromDir()
   {
-    File dir = new File(dirPath);
+    File dir = new File(this.getLogDir().toString());
     File[] files = dir.listFiles();
     if (files == null || files.length == 0)
     {
@@ -234,13 +253,21 @@ public class Logger
     return lastModifiedFile.toString();
   }
 
-
+  /**
+   * Perform cleaning of the log folder,
+   * preserving the current log file and
+   * informing the size of the log folder
+   * before cleaning.
+   * @return the size of the log folder
+   * before cleaning, with proper measuring
+   * unit.
+   */
   public String cleanLogs()
   {
-    File dir = new File(getLogDir().toString());
+    File dir = new File(this.getLogDir().toString());
     String sizeBeforeClean = this.getLogSize();
     System.out.println("Limpando o diretório de logs \"" + dir.toString() + "\"...");
-    File logToExcludeFromDeletion = new File(getLatestFileFromDir(dir.toString()));
+    File logToExcludeFromDeletion = new File(getLatestFileFromDir());
     File[] files = dir.listFiles();
     for (File file : files)
     {

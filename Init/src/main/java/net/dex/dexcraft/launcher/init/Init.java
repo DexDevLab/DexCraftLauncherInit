@@ -1,3 +1,9 @@
+/**
+ * DexCraft Launcher Initializer (Init). This program checks system
+ * requirements to run the Launcher, updates the Launcher and the
+ * Background Services program, and downloads Launcher's basic
+ * resources.
+ */
 package net.dex.dexcraft.launcher.init;
 
 
@@ -15,27 +21,25 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.dex.dexcraft.launcher.check.AdmCheck;
-import net.dex.dexcraft.launcher.check.InstanceCheck;
-import net.dex.dexcraft.launcher.check.OfflineCheck;
-import net.dex.dexcraft.launcher.check.ReqCheck;
+import net.dex.dexcraft.launcher.check.AdminExecution;
+import net.dex.dexcraft.launcher.check.OfflineMode;
+import net.dex.dexcraft.launcher.check.PreventSecondInstance;
+import net.dex.dexcraft.launcher.check.SystemRequirements;
 import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.Cache;
+import net.dex.dexcraft.launcher.tools.Close;
 import net.dex.dexcraft.launcher.tools.DexCraftFiles;
 import net.dex.dexcraft.launcher.tools.DexUI;
 import net.dex.dexcraft.launcher.tools.Download;
 import net.dex.dexcraft.launcher.tools.Logger;
-import net.dex.dexcraft.launcher.tools.ScriptFileReader;
+import org.apache.commons.io.FileUtils;
 
 
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.0.0-201027-432
+  * @version v2.1.0-201128-555
   *
-  * Inicia um Preloader como um Splash para fazer
-  * todos os downloads essenciais antes de abrir
-  * a interface do Launcher.
+  * Preloader Class with splash screen.
   */
 public class Init extends Application
 {
@@ -46,8 +50,12 @@ public class Init extends Application
   static Alerts alerts = new Alerts();
   static Logger logger = new Logger();
   static DexUI ui = new DexUI();
-  static ScriptFileReader sfr = new ScriptFileReader();
 
+
+  /**
+   * Dynamic label change in UI with additional logging.
+   * @param text the text to be shown and logged.
+   */
   public static void changeStatus(String text)
   {
     ui.changeMainLabel(text);
@@ -55,28 +63,26 @@ public class Init extends Application
   }
 
   /**
-   * Inicializa o Stage que abre o Preloader e cria a task em segundo plano.
-   * @param primaryStage
-   * @throws java.lang.Exception
-   * @see #callMain(javafx.stage.Stage)
+   * Starts the preloader screen stage.
+   * @param primaryStage the stage itself (no need to specify)
+   * @throws java.lang.Exception when can't load the Stack Pane
+   * @see #callMain()
    */
   @Override
   public void start(Stage primaryStage) throws Exception
   {
+    //Logger settings
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
     logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
     logger.setLogDir(DexCraftFiles.logFolder);
-    // Carrega o FXML
     FXMLLoader splashLoader = new FXMLLoader(getClass().getResource("Preloader.fxml"));
-    // Cria a Janela do Splash
     StackPane splashPane = splashLoader.load();
-    // Define como transparente para que não apareça decoração de janela (maximizar, minimizar)
     preloaderStage = new Stage(StageStyle.TRANSPARENT);
+    //Remove comment on next line to force focus on the Splash Screen
 //    preloaderStage.setAlwaysOnTop(true);
     final Scene scene = new Scene(splashPane);
     preloaderStage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
-    // Define que a cor do painel root seja transparente para que dê o efeito de sombra
     scene.setFill(Color.TRANSPARENT);
     preloaderStage.setScene(scene);
     preloaderStage.setResizable(false);
@@ -93,11 +99,12 @@ public class Init extends Application
     preloaderLabel.setTextFill(Color.web("#FFFFFF"));
     preloaderLabel.setFont(Font.font("MS Outlook", 12));
     ui.setMainLabel(preloaderLabel);
-    // Cria o serviço para rodar alguma tarefa em background enquanto o splash é mostrado (no caso somente um delay)
 
+
+    /** Opens a Service to show Splash before initialize the application **/
     Service<Boolean> splashService = new Service<Boolean>()
     {
-      // Mostra o splash quando o serviço for iniciado
+      /** Show Splash Screen Stage **/
       @Override
       public void start()
       {
@@ -105,9 +112,9 @@ public class Init extends Application
         logger.log("INFO", "Logger inicializado.");
         logger.log("INFO", "Preloader inicializado");
         super.start();
-        // mostra a janela
       }
 
+      /** Create a Task inside Service to interact with the UI Thread **/
       @Override
       protected Task<Boolean> createTask()
       {
@@ -117,35 +124,36 @@ public class Init extends Application
           @Override
           protected Boolean call() throws Exception
           {
-            InstanceCheck.InstanceCheck();
-            Cache.open();
-            // Delay com atualização da Label
+            PreventSecondInstance.PreventSecondInstance();
             changeStatus("Iniciando...");
             ui.changeProgress(true, 10, 40);
-            AdmCheck.AdmCheck();
+            AdminExecution.AdminExecution();
+            logger.log("INFO", "Preparando Cache...");
+            FileUtils.deleteQuietly(DexCraftFiles.tempFolder);
             ui.changeProgress(true, 20, 40);
-            if(!OfflineCheck.OfflineCheck())
+            if(!OfflineMode.IsRunning())
             {
               ui.changeProgress(true, 30, 40);
               changeStatus("Baixando Corefile...");
               Download downloadCf = new Download();
               downloadCf.coreFile();
               ui.changeProgress(true, 40, 40);
-              changeStatus("Verificando requisitos...");
-              ReqCheck.ReqCheck();
+              changeStatus("Verificando o sistema. Aguarde...");
+              SystemRequirements req = new SystemRequirements();
+              req.checkRequirements();
               ui.changeProgress(true, 50, 40);
               changeStatus("Verificando recursos...");
               Validate.resources();
               ui.changeProgress(true, 70, 40);
               changeStatus("Verificando versão do DexCraft Launcher...");
-              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.versionFile, "DexCraft Launcher",
-                       "DexCraftLauncherVersion", "DCLUpdate", DexCraftFiles.tempFolder,
-                       DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
+              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.launcherProperties, "DexCraft Launcher",
+                       "DexCraftLauncherVersion", "Versions", "LauncherProperties", "LauncherUpdates", "DCLUpdate",
+                       DexCraftFiles.tempFolder, DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
               ui.changeProgress(true, 80, 40);
               changeStatus("Verificando versão do DexCraft Background Services...");
-              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.versionFile, "DexCraft Background Services",
-                       "DexCraftBackgroundServicesVersion", "DCBSUpdate", DexCraftFiles.tempFolder,
-                       DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
+              Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.launcherProperties, "DexCraft Background Services",
+                       "DexCraftBackgroundServicesVersion", "Versions", "LauncherProperties", "LauncherUpdates", "DCBSUpdate",
+                       DexCraftFiles.tempFolder, DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
             }
             ui.changeProgress(true, 90, 40);
             if(!DexCraftFiles.coreFile.exists())
@@ -161,33 +169,30 @@ public class Init extends Application
         };
       }
 
-      // Quando a tarefa for finalizada fecha o splash e mostra a tela principal
+      /** When task above retuns "true", close the Splash Screen Stage and call Application. **/
       @Override
       protected void succeeded()
       {
-        // Fecha o splash
         preloaderStage.close();
         try
         {
-          // Chama a tela principal
           callMain();
           logger.log("INFO", "Instância principal aberta");
-        } catch (Exception ex) { logger.log(ex, "ERRO", "EXCEÇÃO EM succeeded() de SplashService - NÃO FOI POSSÍVEL INICIALIZAR callMain(primaryStage)");}
+        } catch (Exception ex) { logger.log(ex, "EXCEÇÃO EM succeeded() de SplashService - NÃO FOI POSSÍVEL INICIALIZAR callMain(primaryStage)");}
       }
     };
     splashService.start();
   }
 
   /**
-   * Método da Cena principal.Chama o Launcher para ser exibido na tela.
-   * @throws Exception quando ocorre um erro na cena
-   * @see #start(javafx.stage.Stage)
+   * Main Scene method. Calls the Launcher and close the application.
+   * @throws Exception when occurs some error on loading the Launcher.
    */
   private void callMain() throws Exception
   {
     new ProcessBuilder("cmd", "/c", "C:\\DexCraft\\launcher\\bin\\javaw.exe -jar DexCraftLauncher.jar").directory(DexCraftFiles.launcherFolder).start();
-    logger.log("INFO", "DexCraft Launcher inicializado");
-    Cache.close();
+    logger.log("INFO", "Inicializando DexCraft Launcher...");
+    Close.close(0);
   }
 
 }

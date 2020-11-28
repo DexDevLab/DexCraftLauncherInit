@@ -16,8 +16,7 @@ import org.apache.commons.compress.utils.IOUtils;
 
 
 /**
- *
- *
+ * Class for installing provisioned packages (extraction)
  */
 public class Install
 {
@@ -30,23 +29,57 @@ public class Install
   private String progressPercent = "";
   private NumberFormat formatter = new DecimalFormat("#0.00");
 
-
+  /**
+   * Get the name of the file it is been extracted.
+   * @return the name of the file.
+   */
   public String getInstallingFileName() { return this.installingFileName; }
 
+  /**
+   * Set the name of the file it is been extracted.
+   * @param fileName the name of the file.
+   */
   private void setInstallingFileName(String fileName) { this.installingFileName = fileName; }
 
+  /**
+   * Get the total of files which be installed.
+   * @return the quantity of files to be installed.
+   */
   public String getTotalFilesQuantity() { return this.totalFilesQuantity; }
 
+  /**
+   * Set the total of files which be installed.
+   * @param quantity the quantity of files to be installed.
+   */
   private void setTotalFilesQuantity(String quantity) { this.totalFilesQuantity = quantity; }
 
+  /**
+   * Get the position of the current intalled file on the list.
+   * @return the current ordinal position of the installed file.
+   */
   public String getInstallingFilePosition() { return this.installingFilePosition; }
 
+  /**
+   * Set the position of the current intalled file on the list.
+   * @param position the current ordinal position of the installed file.
+   */
   private void setInstallingFilePosition(String position) { this.installingFilePosition = position; }
 
+  /**
+   * Get the current progress in percentual.
+   * @return the current progress percent.
+   */
   public String getProgressPercent() { return this.progressPercent; }
 
+  /**
+   * Set the current progress in percentual.
+   * @param percent the current progress percent.
+   */
   private void setProgressPercent(String percent) { this.progressPercent = percent; }
 
+  /**
+   * Logger basic constructor
+   */
   private void setLogging()
   {
     logger.setLogLock(DexCraftFiles.logLock);
@@ -55,7 +88,12 @@ public class Install
     logger.setLogDir(DexCraftFiles.logFolder);
   }
 
-
+  /**
+   * Method for installing a component which was downloaded
+   * under a zip file.
+   * @param zipResource the installing source
+   * @param destinationDir the installation directory
+   */
   public void downloadedZipResource(File zipResource, File destinationDir)
   {
     setLogging();
@@ -127,9 +165,8 @@ public class Install
       }
       catch (IOException ex)
       {
-        logger.log(ex, "***ERRO***", "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
-        alerts.exceptionHandler(ex, "ERRO DURANTE A INSTALAÇÃO");
-        Cache.closeOnError();
+        alerts.exceptionHandler(ex, "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
+        Close.close(1);
       }
       finally
       {
