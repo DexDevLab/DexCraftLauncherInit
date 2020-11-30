@@ -204,3 +204,12 @@ A LOT of changes in this version. Really a lot of them. I'm super happy for fina
 	* deprecated, since I use JSON files now.
 * Readme.java
 	* proper changes to suit the new Init's features.
+
+## v2.1.1-201130-582
+* dependency-reduced-pom.xml: changed artifact name to match other DexCraft Launcher applications.
+* pom.xml: changed artifact name to match other DexCraft Launcher applications.
+* ProvisionedPackage.java: added more information to log if the package is updated.
+* Init.java: added custom fonts and css to provide a better, more stylish label on splash screen. 
+* DexCraftFiles.java: added init downloaded package to variable list.
+* DexUI.java: created a tooltip constructor to use in controllers.
+* Preloader.fxml: added label with css-style to splash screen.

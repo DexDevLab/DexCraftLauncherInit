@@ -52,6 +52,10 @@ public class ProvisionedPackage
     {
       logger.log("INFO", "Recurso se encontra na versão " + versionInstalled + " e está desatualizado.");
     }
+    else
+    {
+      logger.log("INFO", "Recurso atualizado! (" + versionInstalled + ").");
+    }
     return (!versionInstalled.equals(versionProvisioned));
   }
 

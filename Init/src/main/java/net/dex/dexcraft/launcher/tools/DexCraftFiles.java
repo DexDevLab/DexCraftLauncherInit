@@ -64,4 +64,6 @@ public class DexCraftFiles
   public static File updateLauncherZip = new File (tempFolder + "/launcher.zip");
   /** DCBS's version update downloaded package to install. */
   public static File updateDCBSZip = new File (tempFolder + "/dcbs.zip");
+  /** Init's version update downloaded package to install. */
+  public static File updateInitZip = new File (tempFolder + "/init.zip");
 }

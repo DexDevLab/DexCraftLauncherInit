@@ -4,6 +4,8 @@ package net.dex.dexcraft.launcher.tools;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tooltip;
+import javafx.scene.text.Font;
 
 
 /**
@@ -120,6 +122,20 @@ public class DexUI
   {
     globalProgressValue = 0.0;
     changeProgress(true, 0.1, 10);
+  }
+
+  /**
+   * Constructor for Tooltips.
+   * @param text the text to show on Tooltip.
+   * @return the Tooltip itself.
+   */
+  public static Tooltip tooltipBuilder(String text)
+  {
+    Tooltip tooltip = new Tooltip();
+    tooltip.setWrapText(true);
+    tooltip.setFont(new Font("MS Outlook", 13));
+    tooltip.setText(text);
+    return tooltip;
   }
 
 }

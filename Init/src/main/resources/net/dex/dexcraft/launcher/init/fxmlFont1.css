@@ -1,0 +1,21 @@
+@font-face {
+src: url("Minecrafter.Alt.ttf");
+}
+
+.title {
+-fx-font-family: 'Minecrafter Alt';
+-fx-font-size: 40;
+-fx-font-alignment: "center";
+-fx-text-fill: white;	 	 	 
+-fx-pref-width: 474;	 
+-fx-pref-height: 55;
+-fx-translate-y: 1;
+}
+
+.mainlabel {
+-fx-font-family: 'MS Outlook';
+-fx-font-size: 12;
+-fx-font-alignment: "center";
+-fx-text-fill: white;
+-fx-translate-y: 170;
+}

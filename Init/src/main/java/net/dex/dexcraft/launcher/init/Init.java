@@ -11,7 +11,6 @@ import javafx.application.Application;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -37,7 +36,7 @@ import org.apache.commons.io.FileUtils;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.1.0-201128-555
+  * @version v2.1.1-201130-582
   *
   * Preloader Class with splash screen.
   */
@@ -84,20 +83,19 @@ public class Init extends Application
     final Scene scene = new Scene(splashPane);
     preloaderStage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
     scene.setFill(Color.TRANSPARENT);
+    Font.loadFont(Init.class.getResource("Minecrafter.Alt.ttf").toExternalForm(), 10);
+    scene.getStylesheets().add(getClass().getResource("fxmlFont1.css").toExternalForm());
     preloaderStage.setScene(scene);
     preloaderStage.setResizable(false);
     pbar = new ProgressBar(0.0);
     preloaderLabel = new Label("Iniciando...");
     splashPane.getChildren().add(preloaderLabel);
     splashPane.getChildren().add(pbar);
+    preloaderLabel.getStyleClass().add("mainlabel");
     pbar.setMaxSize(606, 11);
     pbar.setTranslateY(190);
     pbar.getStylesheets().add(getClass().getResource("gradientprogressbar2.css").toExternalForm());
     ui.setProgressBar(pbar);
-    preloaderLabel.setAlignment(Pos.CENTER);
-    preloaderLabel.setTranslateY(170);
-    preloaderLabel.setTextFill(Color.web("#FFFFFF"));
-    preloaderLabel.setFont(Font.font("MS Outlook", 12));
     ui.setMainLabel(preloaderLabel);
 
 
@@ -178,7 +176,11 @@ public class Init extends Application
         {
           callMain();
           logger.log("INFO", "Instância principal aberta");
-        } catch (Exception ex) { logger.log(ex, "EXCEÇÃO EM succeeded() de SplashService - NÃO FOI POSSÍVEL INICIALIZAR callMain(primaryStage)");}
+        }
+        catch (Exception ex)
+        {
+          alerts.exceptionHandler(ex, "EXCEÇÃO EM Client.start().start().succeeded()");
+        }
       }
     };
     splashService.start();
