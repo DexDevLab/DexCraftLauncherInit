@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -20,7 +20,7 @@ import org.apache.commons.compress.utils.IOUtils;
  */
 public class Install
 {
-  private Alerts alerts = new Alerts();
+  private ErrorAlerts alerts = new ErrorAlerts();
   private Logger logger = new Logger();
   private ZipFile zipFile = null;
   private String installingFileName = "";
@@ -28,6 +28,16 @@ public class Install
   private String installingFilePosition = "";
   private String progressPercent = "";
   private NumberFormat formatter = new DecimalFormat("#0.00");
+
+
+  public Install()
+  {
+    //Logger constructor.
+    logger.setLogLock(DexCraftFiles.logLock);
+    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
+    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
+    logger.setLogDir(DexCraftFiles.logFolder);
+  }
 
   /**
    * Get the name of the file it is been extracted.
@@ -78,17 +88,6 @@ public class Install
   private void setProgressPercent(String percent) { this.progressPercent = percent; }
 
   /**
-   * Logger basic constructor
-   */
-  private void setLogging()
-  {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
-
-  /**
    * Method for installing a component which was downloaded
    * under a zip file.
    * @param zipResource the installing source
@@ -96,7 +95,6 @@ public class Install
    */
   public void downloadedZipResource(File zipResource, File destinationDir)
   {
-    setLogging();
     if (!zipResource.exists())
     {
       logger.log("***ERRO***", "EXCEÇÃO EM Install.downloadedZipResource(File, File) - ARQUIVO DE RECURSO NÃO ENCONTRADO.");
@@ -166,7 +164,7 @@ public class Install
       catch (IOException ex)
       {
         alerts.exceptionHandler(ex, "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
-        Close.close(1);
+        Close.close(9);
       }
       finally
       {

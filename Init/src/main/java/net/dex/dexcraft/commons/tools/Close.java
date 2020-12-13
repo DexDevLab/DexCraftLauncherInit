@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -15,10 +15,11 @@ public class Close
    * Close the program properly, removing
    * temporary folders and unneeded lockers.
    * @param code the closing code:<br>
-   * 0 - normal program close. Keeps the instance
+   * 0 - normal Init closing. Keeps the instance
    * lock, the log lock and the run folder, needed
    * to the Launcher Client and the DCBS.<br>
-   * 1 - program exiting with error because of a
+   * 1 - normal Client closing.
+   * 9 - program exiting with error because of a
    * critical exception, or used when DCBS closes
    * completely.
    */
@@ -35,16 +36,29 @@ public class Close
     switch (code)
     {
       case 0:
-        logger.log("INFO", "Limpando Cache...");
+        logger.log("INFO", "Fechando DexCraft Launcher Init...");
         clean.excluir(DexCraftFiles.adminCheck, false);
         clean.excluir(DexCraftFiles.tempFolder, true);
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
         break;
       case 1:
+        logger.log("INFO", "Fechando DexCraft Launcher Client...");
+        clean.excluir(DexCraftFiles.adminCheck, false);
+        clean.excluir(DexCraftFiles.tempFolder, true);
+//        clean.excluir(DexCraftFiles.logLock, false);
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherInitRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
+        break;
+      case 9:
         logger.log("INFO", "Fechando...");
         clean.excluir(DexCraftFiles.adminCheck, false);
         clean.excluir(DexCraftFiles.tempFolder, true);
         clean.excluir(DexCraftFiles.logLock, false);
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherInitRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
+        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
         break;
       default:
     }

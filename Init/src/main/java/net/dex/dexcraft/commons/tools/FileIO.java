@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -14,12 +14,10 @@ import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import net.dex.dexcraft.launcher.init.Init;
-import org.apache.commons.io.*;
-import org.apache.commons.io.filefilter.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 
 /**
@@ -28,7 +26,7 @@ import org.apache.commons.io.filefilter.*;
 public class FileIO
 {
 
-  private Alerts alerts = new Alerts();
+  private ErrorAlerts alerts;
   private int fileIoErrorCode = 0;
   private File src;
   private File dest;
@@ -39,6 +37,7 @@ public class FileIO
    */
   public FileIO()
   {
+    alerts = new ErrorAlerts();
     logger = new Logger();
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
@@ -166,11 +165,6 @@ public class FileIO
                   FileUtils.deleteDirectory(file);
                 }
               }
-              else
-              {
-                logger.log("INFO", "Excluindo diretório \"" + src.toString() + "\"...");
-                FileUtils.deleteDirectory(file);
-              }
             }
             catch (IOException ex)
             {
@@ -180,7 +174,7 @@ public class FileIO
           }
           else
           {
-            logger.log("INFO", "Excluindo arquivo \"" + src.toString() + "\"...");
+            logger.log("INFO", "Excluindo arquivo \"" + file.toString() + "\"...");
             FileUtils.deleteQuietly(file);
           }
         });
@@ -265,7 +259,6 @@ public class FileIO
       Alert alerts = new Alert(Alert.AlertType.ERROR);
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
-      stage.getIcons().add(new Image(Init.class.getResourceAsStream("icon1.jpg")));
       stage.setOnCloseRequest((e) -> {e.consume();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("ERRO CRÍTICO NO PROCESSO");
@@ -296,7 +289,7 @@ public class FileIO
       if (result.get() == btnok)
       {
         fileIoErrorCode = 0;
-        Close.close(1);
+        Close.close(9);
       }
       return null;
     }

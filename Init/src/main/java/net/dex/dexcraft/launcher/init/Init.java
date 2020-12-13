@@ -20,23 +20,21 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.dex.dexcraft.launcher.check.AdminExecution;
-import net.dex.dexcraft.launcher.check.OfflineMode;
-import net.dex.dexcraft.launcher.check.PreventSecondInstance;
-import net.dex.dexcraft.launcher.check.SystemRequirements;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.Close;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.DexUI;
-import net.dex.dexcraft.launcher.tools.Download;
-import net.dex.dexcraft.launcher.tools.Logger;
-import org.apache.commons.io.FileUtils;
+import net.dex.dexcraft.commons.check.AdminExecution;
+import net.dex.dexcraft.commons.check.OfflineMode;
+import net.dex.dexcraft.commons.check.SystemRequirements;
+import net.dex.dexcraft.commons.tools.Close;
+import net.dex.dexcraft.commons.tools.DexCraftFiles;
+import net.dex.dexcraft.commons.tools.DexUI;
+import net.dex.dexcraft.commons.tools.Download;
+import net.dex.dexcraft.commons.tools.ErrorAlerts;
+import net.dex.dexcraft.commons.tools.Logger;
 
 
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.1.1-201130-582
+  * @version v2.1.2-201213-595
   *
   * Preloader Class with splash screen.
   */
@@ -46,9 +44,9 @@ public class Init extends Application
   static Stage mainWindowStage =  new Stage();
   static Label preloaderLabel;
   static ProgressBar pbar;
-  static Alerts alerts = new Alerts();
+  static ErrorAlerts alerts = new ErrorAlerts();
   static Logger logger = new Logger();
-  static DexUI ui = new DexUI();
+  static DexUI initUI = new DexUI();
 
 
   /**
@@ -57,7 +55,7 @@ public class Init extends Application
    */
   public static void changeStatus(String text)
   {
-    ui.changeMainLabel(text);
+    initUI.changeMainLabel(text);
     logger.log("INFO", text);
   }
 
@@ -70,11 +68,7 @@ public class Init extends Application
   @Override
   public void start(Stage primaryStage) throws Exception
   {
-    //Logger settings
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
+    alerts.setImage(new Image(Init.class.getResourceAsStream("icon1.jpg")));
     FXMLLoader splashLoader = new FXMLLoader(getClass().getResource("Preloader.fxml"));
     StackPane splashPane = splashLoader.load();
     preloaderStage = new Stage(StageStyle.TRANSPARENT);
@@ -95,8 +89,8 @@ public class Init extends Application
     pbar.setMaxSize(606, 11);
     pbar.setTranslateY(190);
     pbar.getStylesheets().add(getClass().getResource("gradientprogressbar2.css").toExternalForm());
-    ui.setProgressBar(pbar);
-    ui.setMainLabel(preloaderLabel);
+    initUI.setProgressBar(pbar);
+    initUI.setMainLabel(preloaderLabel);
 
 
     /** Opens a Service to show Splash before initialize the application **/
@@ -107,8 +101,6 @@ public class Init extends Application
       public void start()
       {
         preloaderStage.show();
-        logger.log("INFO", "Logger inicializado.");
-        logger.log("INFO", "Preloader inicializado");
         super.start();
       }
 
@@ -122,45 +114,55 @@ public class Init extends Application
           @Override
           protected Boolean call() throws Exception
           {
-            PreventSecondInstance.PreventSecondInstance();
+
+            // Check if another instance is running
+            Validate.instance("Init");
+
+            //Logger settings
+            logger.setLogLock(DexCraftFiles.logLock);
+            logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
+            logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
+            logger.setLogDir(DexCraftFiles.logFolder);
+            logger.log("INFO", "Logger inicializado.");
+
             changeStatus("Iniciando...");
-            ui.changeProgress(true, 10, 40);
             AdminExecution.AdminExecution();
+            initUI.changeProgress(true, 10, 40);
             logger.log("INFO", "Preparando Cache...");
-            FileUtils.deleteQuietly(DexCraftFiles.tempFolder);
-            ui.changeProgress(true, 20, 40);
+            Validate.cache();
+            initUI.changeProgress(true, 20, 40);
             if(!OfflineMode.IsRunning())
             {
-              ui.changeProgress(true, 30, 40);
+              initUI.changeProgress(true, 30, 40);
               changeStatus("Baixando Corefile...");
               Download downloadCf = new Download();
               downloadCf.coreFile();
-              ui.changeProgress(true, 40, 40);
+              initUI.changeProgress(true, 40, 40);
               changeStatus("Verificando o sistema. Aguarde...");
               SystemRequirements req = new SystemRequirements();
               req.checkRequirements();
-              ui.changeProgress(true, 50, 40);
+              initUI.changeProgress(true, 50, 40);
               changeStatus("Verificando recursos...");
               Validate.resources();
-              ui.changeProgress(true, 70, 40);
+              initUI.changeProgress(true, 70, 40);
               changeStatus("Verificando versão do DexCraft Launcher...");
               Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.launcherProperties, "DexCraft Launcher",
                        "DexCraftLauncherVersion", "Versions", "LauncherProperties", "LauncherUpdates", "DCLUpdate",
                        DexCraftFiles.tempFolder, DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
-              ui.changeProgress(true, 80, 40);
+              initUI.changeProgress(true, 80, 40);
               changeStatus("Verificando versão do DexCraft Background Services...");
               Validate.provisionedComponent(DexCraftFiles.coreFile, DexCraftFiles.launcherProperties, "DexCraft Background Services",
                        "DexCraftBackgroundServicesVersion", "Versions", "LauncherProperties", "LauncherUpdates", "DCBSUpdate",
                        DexCraftFiles.tempFolder, DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
             }
-            ui.changeProgress(true, 90, 40);
+            initUI.changeProgress(true, 90, 40);
             if(!DexCraftFiles.coreFile.exists())
             {
               logger.log("***ERRO***", "COREFILE NÃO ENCONTRADO.");
               alerts.noCoreFile();
             }
             changeStatus("Abrindo DexCraft Launcher...");
-            ui.changeProgress(true, 100, 40);
+            initUI.changeProgress(true, 100, 40);
             logger.log("INFO", "Splash Screen terminada");
             return true;
           }

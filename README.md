@@ -1,4 +1,5 @@
 
+
 # License
 This program and its files, its codes, implementation and functions are under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.
 
@@ -213,3 +214,13 @@ A LOT of changes in this version. Really a lot of them. I'm super happy for fina
 * DexCraftFiles.java: added init downloaded package to variable list.
 * DexUI.java: created a tooltip constructor to use in controllers.
 * Preloader.fxml: added label with css-style to splash screen.
+
+## v2.1.2-201213-595
+A lot of good fancy changes here.
+I changed the entire utility classes to another folder in package so I can make it as a library in the future. I've tried a lot but I couldn't make it right now.
+* fxmlFont1.css: changed main launcher's fonts and updated the css with it.
+* Validate.java:
+	* Added new validations, changed the variables so it can get info from JSON file and update to the launcher.
+* Alerts.java:
+	* Name changed to "ErrorAlerts".
+	* Added funcionality to retrieve alert window icon by getter and constructor reference.

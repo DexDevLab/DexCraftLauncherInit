@@ -1,14 +1,14 @@
-package net.dex.dexcraft.launcher.check;
+package net.dex.dexcraft.commons.check;
 
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.JSONUtility;
-import net.dex.dexcraft.launcher.tools.Logger;
+import net.dex.dexcraft.commons.tools.DexCraftFiles;
+import net.dex.dexcraft.commons.tools.ErrorAlerts;
+import net.dex.dexcraft.commons.tools.JSONUtility;
+import net.dex.dexcraft.commons.tools.Logger;
 
 
 /**
@@ -21,7 +21,7 @@ import net.dex.dexcraft.launcher.tools.Logger;
  */
 public class OfflineMode
 {
-  static Alerts alerts = new Alerts();
+  static ErrorAlerts alerts = new ErrorAlerts();
   static boolean keepOfflineMode = false;
   static Logger logger = new Logger();
   static JSONUtility ju = new JSONUtility();

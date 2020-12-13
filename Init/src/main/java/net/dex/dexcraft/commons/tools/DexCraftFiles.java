@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -54,7 +54,8 @@ public class DexCraftFiles
   /** File containing CoreFile download URL. */
   public static File coreFileLinkFile = new File (launcherFolder + "/cfurl.json");
   /** CoreFile location after downloaded properly. */
-  public static File coreFile = new File(launcherFolder+ "/src/corecfg.json");
+  public static File coreFile = new File(launcherFolder+ "/corecfg.json");
+
 
   /** DexCraft Launcher main file asset. This contains important
       information about the Launcher in current execution, as if

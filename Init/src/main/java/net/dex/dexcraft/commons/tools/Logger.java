@@ -1,12 +1,12 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import net.dex.dexcraft.launcher.check.SystemRequirements;
-import org.apache.commons.io.*;
+import net.dex.dexcraft.commons.check.SystemRequirements;
+import org.apache.commons.io.FileUtils;
 
 
 

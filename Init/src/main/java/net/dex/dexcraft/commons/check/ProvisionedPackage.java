@@ -1,12 +1,12 @@
-package net.dex.dexcraft.launcher.check;
+package net.dex.dexcraft.commons.check;
 
 
 import java.io.File;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.Close;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.JSONUtility;
-import net.dex.dexcraft.launcher.tools.Logger;
+import net.dex.dexcraft.commons.tools.Close;
+import net.dex.dexcraft.commons.tools.DexCraftFiles;
+import net.dex.dexcraft.commons.tools.ErrorAlerts;
+import net.dex.dexcraft.commons.tools.JSONUtility;
+import net.dex.dexcraft.commons.tools.Logger;
 
 
 /**
@@ -33,7 +33,7 @@ public class ProvisionedPackage
   public static boolean isOutdated(File versionFile, String versionFileCategory,String objectName, String versionProvisioned)
   {
     //Logger settings and custom alerts initialization
-    Alerts alerts = new Alerts();
+    ErrorAlerts alerts = new ErrorAlerts();
     Logger logger = new Logger();
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
@@ -44,7 +44,7 @@ public class ProvisionedPackage
     {
       logger.log("***ERRO***", "ARQUIVO \"" + versionFile.toString() + "\" NÃO FOI ENCONTRADO");
       alerts.tryAgain();
-      Close.close(1);
+      Close.close(9);
     }
     JSONUtility ju = new JSONUtility();
     String versionInstalled = ju.readValue(versionFile, versionFileCategory, objectName);

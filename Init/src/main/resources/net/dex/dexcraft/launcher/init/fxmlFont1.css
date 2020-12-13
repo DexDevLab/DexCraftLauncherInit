@@ -12,8 +12,10 @@ src: url("Minecrafter.Alt.ttf");
 -fx-translate-y: 1;
 }
 
-.mainlabel {
--fx-font-family: 'MS Outlook';
+.mainlabel 
+{
+-fx-font-family: 'Segoe UI';
+-fx-font-weight: bold;
 -fx-font-size: 12;
 -fx-font-alignment: "center";
 -fx-text-fill: white;

@@ -1,9 +1,12 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import javafx.application.Platform;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.text.Font;
 
@@ -16,7 +19,11 @@ public class DexUI
 {
   private double globalProgressValue = 0;
   private ProgressBar pbar;
-  private Label lb;
+  private Label mainLb;
+  private Label secLb;
+  private TextField mainTf;
+  private PasswordField mainPf;
+  private Button mainBt;
 
   /**
    * Define the UI's Progress Bar.
@@ -35,7 +42,7 @@ public class DexUI
    */
   public void setMainLabel(Label lb)
   {
-    this.lb = lb;
+    this.mainLb = lb;
   }
 
   /**
@@ -44,8 +51,112 @@ public class DexUI
    */
   public void changeMainLabel(String text)
   {
-    Platform.runLater(() -> {lb.setText(text);});
+    Platform.runLater(() -> {mainLb.setText(text);});
   }
+
+  /**
+   * Change if the main label is visible or not.
+   * @param isVisible if the label will keep visible (true) or not (false).
+   */
+  public void changeMainLabelVisibility(boolean isVisible)
+  {
+    Platform.runLater(() -> {mainLb.setVisible(isVisible);});
+  }
+
+  /**
+   * Define the UI's secondary label.<br>
+   * The secondary label is a label which displays
+   * minor info.
+   * @param lb the secondary label
+   */
+  public void setSecondaryLabel(Label lb)
+  {
+    this.secLb = lb;
+  }
+
+  /**
+   * Updates the main label on UI.
+   * @param text the text to be shown.
+   */
+  public void changeSecondaryLabel(String text)
+  {
+    Platform.runLater(() -> {secLb.setText(text);});
+  }
+
+  /**
+   * Define the UI's main text field.
+   * @param tf the Text Field
+   */
+  public void setMainTextField(TextField tf)
+  {
+    this.mainTf = tf;
+  }
+
+  /**
+   * Updates the main text on UI.
+   * @param text the text to be shown.
+   */
+  public void changeMainTextField(String text)
+  {
+    Platform.runLater(() -> {mainTf.setText(text);});
+  }
+
+  /**
+   * Define the UI's main password field.
+   * @param pf the Password Field.
+   */
+  public void setMainPasswordField(PasswordField pf)
+  {
+    this.mainPf = pf;
+  }
+
+  /**
+   * Updates the main password field on UI.
+   * @param text the text to be shown.
+   */
+  public void changeMainPasswordField(String text)
+  {
+    Platform.runLater(() -> {mainPf.setText(text);});
+  }
+
+  /**
+   * Define the UI's main button.
+   * @param bt the Button
+   */
+  public void setMainButton(Button bt)
+  {
+    mainBt = bt;
+  }
+
+  public void setMainButtonDisable(boolean isDisabled)
+  {
+    Platform.runLater(() -> {mainBt.setDisable(isDisabled);});
+  }
+
+
+
+
+  public void setStyle(String obj, String style)
+  {
+    switch (obj)
+    {
+      case "MainLabel":
+        Platform.runLater(() -> {mainLb.setStyle(style);});
+        break;
+      case "SecLabel":
+        Platform.runLater(() -> {secLb.setStyle(style);});
+        break;
+      case "MainTextField":
+        Platform.runLater(() -> {mainTf.setStyle(style);});
+        break;
+      case "MainPasswordField":
+        Platform.runLater(() -> {mainPf.setStyle(style);});
+        break;
+      default:
+        break;
+    }
+  }
+
 
   /**
    * Change the Progress Bar values and updates on UI.
@@ -62,7 +173,7 @@ public class DexUI
     try
     {
       // Time between progress bar changes. Increase
-        // it to have a bigger gap between progress t
+        // it to have a bigger gap between progress
         // transitions.
       Thread.sleep(50);
       double progressValue = 0;
@@ -129,7 +240,7 @@ public class DexUI
    * @param text the text to show on Tooltip.
    * @return the Tooltip itself.
    */
-  public static Tooltip tooltipBuilder(String text)
+  public Tooltip tooltipBuilder(String text)
   {
     Tooltip tooltip = new Tooltip();
     tooltip.setWrapText(true);

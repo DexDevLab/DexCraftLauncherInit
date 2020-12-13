@@ -1,11 +1,11 @@
-package net.dex.dexcraft.launcher.check;
+package net.dex.dexcraft.commons.check;
 
 
 import java.io.IOException;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.FileIO;
-import net.dex.dexcraft.launcher.tools.Logger;
+import net.dex.dexcraft.commons.tools.DexCraftFiles;
+import net.dex.dexcraft.commons.tools.ErrorAlerts;
+import net.dex.dexcraft.commons.tools.FileIO;
+import net.dex.dexcraft.commons.tools.Logger;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -36,7 +36,7 @@ public class AdminExecution
       catch (IOException ex)
       {
         logger.log(ex, "NÃO FOI POSSÍVEL CRIAR O DexCraftFiles.adminCheck");
-        Alerts alerts = new Alerts();
+        ErrorAlerts alerts = new ErrorAlerts();
         alerts.noAdmin();
       }
     }

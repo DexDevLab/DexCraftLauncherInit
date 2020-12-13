@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import org.apache.commons.io.*;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -19,14 +19,14 @@ public class ScriptFileReader
 {
 
   private static Logger logger;
-  private Alerts alerts;
+  private ErrorAlerts alerts;
 
   /**
    * Constructor (custom alerts and logging).
    */
   public ScriptFileReader()
   {
-    alerts = new Alerts();
+    alerts = new ErrorAlerts();
     logger = new Logger();
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");

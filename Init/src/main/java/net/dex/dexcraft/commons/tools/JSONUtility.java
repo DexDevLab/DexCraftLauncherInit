@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,7 +21,7 @@ public class JSONUtility
 {
 
   private Logger logger = new Logger();
-  private Alerts alerts = new Alerts();
+  private ErrorAlerts alerts = new ErrorAlerts();
 
   /**
    * Constructor (custom alerts and logging).

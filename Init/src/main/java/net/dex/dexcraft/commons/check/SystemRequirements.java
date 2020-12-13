@@ -1,13 +1,13 @@
-package net.dex.dexcraft.launcher.check;
+package net.dex.dexcraft.commons.check;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import net.dex.dexcraft.launcher.tools.Alerts;
-import net.dex.dexcraft.launcher.tools.Connections;
-import net.dex.dexcraft.launcher.tools.DexCraftFiles;
-import net.dex.dexcraft.launcher.tools.JSONUtility;
-import net.dex.dexcraft.launcher.tools.Logger;
+import net.dex.dexcraft.commons.tools.Connections;
+import net.dex.dexcraft.commons.tools.DexCraftFiles;
+import net.dex.dexcraft.commons.tools.ErrorAlerts;
+import net.dex.dexcraft.commons.tools.JSONUtility;
+import net.dex.dexcraft.commons.tools.Logger;
 import org.apache.commons.io.IOUtils;
 
 
@@ -17,7 +17,7 @@ import org.apache.commons.io.IOUtils;
  */
 public class SystemRequirements
 {
-  Alerts alerts = new Alerts();
+  ErrorAlerts alerts = new ErrorAlerts();
   Logger logger = new Logger();
 
   /**
@@ -41,7 +41,7 @@ public class SystemRequirements
     logger.log("INFO", "O computador possui " + checkSystemRAMGB() + "GB de RAM instalados.");
     JSONUtility ju = new JSONUtility();
     long reqMin = Long.parseLong(ju.readValue(DexCraftFiles.coreFile, "Installer", "ReqsMinimumRAM"));
-    long uploadMinSpd = Long.parseLong(ju.readValue(DexCraftFiles.coreFile, "BackupService", "minimumMbpsUploadSpeed"));
+    long uploadMinSpd = Long.parseLong(ju.readValue(DexCraftFiles.coreFile, "BackupService", "MinimumMbpsUploadSpeed"));
     double reqMinD = (reqMin / 1000);
     logger.log("INFO", "Coletando informações sobre o Sistema Operacional...");
     if ((checkSystemRAMGB() < reqMinD) | (checkSystemArch().equals("x86")))

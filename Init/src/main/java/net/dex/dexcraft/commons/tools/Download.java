@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -10,7 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import org.apache.commons.io.*;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -28,7 +28,7 @@ public class Download
   long startTime = 0;
   private static int EOF = -1;
   private static int DEFAULT_BUFFER_SIZE = 1024 * 4;
-  private Alerts alerts = new Alerts();
+  private ErrorAlerts alerts = new ErrorAlerts();
   private Logger logger = new Logger();
   private FileIO file = new FileIO();
   private NumberFormat formatter = new DecimalFormat("#0.0");
@@ -42,6 +42,16 @@ public class Download
   private String estimatedSeconds = "";
   private String progressPercent = "";
   private String downloadSpeed = "";
+
+
+  public Download()
+  {
+    //Logger constructor.
+    logger.setLogLock(DexCraftFiles.logLock);
+    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
+    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
+    logger.setLogDir(DexCraftFiles.logFolder);
+  }
 
   /**
    * Get the downloaded file size.
@@ -155,10 +165,7 @@ public class Download
    */
   private void setLogging()
   {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
+
   }
 
   /**

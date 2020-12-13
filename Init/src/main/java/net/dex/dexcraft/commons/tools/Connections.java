@@ -1,4 +1,4 @@
-package net.dex.dexcraft.launcher.tools;
+package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.net.ftp.FTPClient;
 
 
 
@@ -28,14 +29,14 @@ public class Connections
   private NumberFormat formatter = new DecimalFormat("#0.0");
   private int EOF = -1;
 
-  private Alerts alerts = new Alerts();
+  public FTPClient ftpClient;
+
+  private ErrorAlerts alerts = new ErrorAlerts();
   private Logger logger = new Logger();
 
-  /**
-   * Logger basic constructor.
-   */
-  private void setLogging()
+  public Connections()
   {
+    //Logger constructor.
     logger.setLogLock(DexCraftFiles.logLock);
     logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
     logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
@@ -101,7 +102,6 @@ public class Connections
    */
   public long getDownloadSpeed(String url, File testFile)
   {
-    setLogging();
     logger.log("INFO", "Calculando a velocidade da internet. Aguarde...");
     Thread speedMeter = new Thread(()->
     {
@@ -181,7 +181,6 @@ public class Connections
    */
   public String getPing(String url)
   {
-    setLogging();
     String result = null;
     try
     {
@@ -199,7 +198,6 @@ public class Connections
     }
     return result;
   }
-
 
 //  IMPLEMENTATION EXAMPLES
 //
