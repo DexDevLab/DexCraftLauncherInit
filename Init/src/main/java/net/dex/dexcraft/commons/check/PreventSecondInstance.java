@@ -1,9 +1,7 @@
 package net.dex.dexcraft.commons.check;
 
 
-import net.dex.dexcraft.commons.tools.DexCraftFiles;
-import net.dex.dexcraft.commons.tools.JSONUtility;
-import net.dex.dexcraft.commons.tools.Logger;
+import net.dex.dexcraft.commons.dto.SessionDTO;
 
 
 /**
@@ -15,27 +13,39 @@ public class PreventSecondInstance
   /**
    * Check if there is another instance of the program
    * currently running.
-   * @param checkKey the JSON key which the instance refers to.
+   * @param instanceName the name of the instance.
    * @return if the instance is running already (true) or not(false)
    */
-  public static boolean isThereAnotherInstance(String checkKey)
+  public static boolean isThereAnotherInstance(String instanceName)
   {
-    //Logger settings
-    Logger logger = new Logger();
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-    JSONUtility ju = new JSONUtility();
-    if (!ju.readValue(DexCraftFiles.launcherProperties, "LauncherProperties", checkKey).equals("true"))
+    boolean instanceStatus = false;
+    switch (instanceName)
     {
-      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", checkKey, "true");
+      case "Init":
+        instanceStatus = SessionDTO.getDexCraftLauncherInitStatus();
+        if (!instanceStatus)
+        {
+          SessionDTO.setDexCraftLauncherInitInstance(true);
+        }
+        break;
+      case "Client":
+        instanceStatus = SessionDTO.getDexCraftLauncherClientStatus();
+        if (!instanceStatus)
+        {
+          SessionDTO.setDexCraftLauncherClientInstance(true);
+        }
+        break;
+      case "DCBS":
+        instanceStatus = SessionDTO.getDexCraftBackgroundServicesStatus();
+        if (!instanceStatus)
+        {
+          SessionDTO.setDexCraftBackgroundServicesInstance(true);
+        }
+        break;
+      default:
+        break;
     }
-    else
-    {
-      return true;
-    }
-    return false;
+    return instanceStatus;
   }
 
 }

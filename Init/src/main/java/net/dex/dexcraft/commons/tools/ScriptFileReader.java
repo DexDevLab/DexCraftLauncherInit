@@ -8,31 +8,17 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
+import static net.dex.dexcraft.commons.Commons.alerts;
 import org.apache.commons.io.FileUtils;
 
 
 /**
  * A Class to read and modify my
  * own script file type.
+ * (CURRENTLY DEPRECATED)
  */
 public class ScriptFileReader
 {
-
-  private static Logger logger;
-  private ErrorAlerts alerts;
-
-  /**
-   * Constructor (custom alerts and logging).
-   */
-  public ScriptFileReader()
-  {
-    alerts = new ErrorAlerts();
-    logger = new Logger();
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   private File scriptFile;
   private ArrayList<String> outputList;

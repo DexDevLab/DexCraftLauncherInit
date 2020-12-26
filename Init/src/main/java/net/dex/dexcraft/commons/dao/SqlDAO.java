@@ -1,4 +1,4 @@
-package net.dex.dexcraft.commons.tools;
+package net.dex.dexcraft.commons.dao;
 
 
 import java.sql.Connection;
@@ -9,12 +9,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
 
 
 /**
- * SQLite Utility Class.
+ * SqlDAO Utility Class.
  */
-public class Database
+public class SqlDAO
 {
 
   private String dbClass;
@@ -37,26 +39,19 @@ public class Database
   private List<String> dblist = new ArrayList<>();
   private String result;
 
-  private Logger logger = new Logger();
   private String dbLogPrefix;
-  private static ErrorAlerts alerts = new ErrorAlerts();
 
 
   /**
    * Class constructor.
    * @param className the name of the Database Class.
    */
-  public Database(String className)
+  public SqlDAO(String className)
   {
     try
     {
-      //Logger constructor
-      logger.setLogLock(DexCraftFiles.logLock);
-      logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-      logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-      logger.setLogDir(DexCraftFiles.logFolder);
-
       Class.forName(className);
+
       this.createTableStatement = "CREATE TABLE IF NOT EXISTS players (\n"
                                   + "username varchar(20) PRIMARY KEY,\n"
                                   + "password varchar(20) NOT NULL,"
@@ -78,101 +73,142 @@ public class Database
     }
   }
 
-  public String getDBUrl()
+  /**
+   * GET the database URL.
+   * @return the database URL.
+   */
+  private String getDBUrl()
   {
-    return this.dbURL = "jdbc:" + getDbDriver() + "://" + getDbAddress() +":" + getDbPort() + "/" + getDbName() ;
+    return this.dbURL = "jdbc:" + getDBDriver() + "://" + getDBAddress() +":" + getDBPort() + "/" + getDBName() ;
   }
 
-  public String getDbLogPrefix()
+  /**
+   * GET the prefix for logging.
+   * @return the prefix for logging.
+   */
+  private String getDBLogPrefix()
   {
-    return dbLogPrefix = getDbDriver().toUpperCase() + ": ";
+    return dbLogPrefix = getDBDriver().toUpperCase() + ": ";
   }
 
-  public void setDbLogPrefix(String dbLogPrefix)
-  {
-    this.dbLogPrefix = dbLogPrefix;
-  }
-
-  public String getDbClass()
-  {
-    return dbClass;
-  }
-
-  public void setDbClass(String dbClass)
-  {
-    this.dbClass = dbClass;
-  }
-
-  public String getDbDriver()
+  /**
+   * GET the Database driver.
+   * @return the Database driver.
+   */
+  private String getDBDriver()
   {
     return dbDriver;
   }
 
-  public void setDbDriver(String dbDriver)
+  /**
+   * SET the Database driver.
+   * @param dbDriver the Database driver.
+   */
+  public void setDBDriver(String dbDriver)
   {
     this.dbDriver = dbDriver;
   }
 
-  public String getDbName()
+  /**
+   * GET the Database name.
+   * @return the Database name.
+   */
+  private String getDBName()
   {
     return dbName;
   }
 
-  public void setDbName(String dbName)
+  /**
+   * SET the Database name.
+   * @param dbName the Database name.
+   */
+  public void setDBName(String dbName)
   {
     this.dbName = dbName;
   }
 
-  public String getDbAddress()
+  /**
+   * GET the Database address.
+   * @return the Database address.
+   */
+  private String getDBAddress()
   {
     return dbAddress;
   }
 
-  public void setDbAddress(String dbAddress)
+  /**
+   * SET the Database address.
+   * @param dbAddress the Database address.
+   */
+  public void setDBAddress(String dbAddress)
   {
     this.dbAddress = dbAddress;
   }
 
-  public String getDbPort()
+  /**
+   * GET the Database acess port.
+   * @return the Database acess port.
+   */
+  private String getDBPort()
   {
     return dbPort;
   }
 
-  public void setDbPort(String dbPort)
+  /**
+   * SET the Database acess port.
+   * @param dbPort the Database acess port.
+   */
+  public void setDBPort(String dbPort)
   {
     this.dbPort = dbPort;
   }
 
-  public String getDbUser()
+  /**
+   * GET the Database access user.
+   * @return the Database access user.
+   */
+  private String getDBUser()
   {
     return dbUser;
   }
 
-  public void setDbUser(String dbUser)
+  /**
+   * SET the Database access password.
+   * @param dbUser the Database access password.
+   */
+  public void setDBUser(String dbUser)
   {
     this.dbUser = dbUser;
   }
 
-  public String getDbPassword()
+  /**
+   * GET the Database access password.
+   * @return the Database access password.
+   */
+  private String getDBPassword()
   {
     return dbPassword;
   }
 
-  public void setDbPassword(String dbPassword)
+  /**
+   * SET the Database access password.
+   * @param dbPassword the Database access password.
+   */
+  public void setDBPassword(String dbPassword)
   {
     this.dbPassword = dbPassword;
   }
 
 
-
-
-
+  /**
+   * Stabilish a connection with the server.
+   */
   public void connect()
   {
     try
     {
-      con = DriverManager.getConnection(getDBUrl(), getDbUser(), getDbPassword());
-      logger.log("INFO", getDbLogPrefix() + "Banco de dados conectado.");
+      con = DriverManager.getConnection(getDBUrl(), getDBUser(), getDBPassword());
+      logger.log("INFO", getDBLogPrefix() + "Banco de dados conectado.");
     }
     catch (SQLException ex)
     {
@@ -181,6 +217,9 @@ public class Database
   }
 
 
+  /**
+   * Disconnect properly a connection.
+   */
   public void disconnect()
   {
     try
@@ -203,7 +242,7 @@ public class Database
     {
       Statement stm = con.createStatement();
       stm.execute(createTableStatement);
-      logger.log("INFO", getDbLogPrefix() + "Statement executado.");
+      logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       stm.close();
     }
     catch (SQLException ex)
@@ -229,9 +268,9 @@ public class Database
         pstm.setString(2,pass);
         pstm.setString(3,timestamp);
         pstm.executeUpdate();
-        logger.log("INFO", getDbLogPrefix() + "Statement executado.");
+        logger.log("INFO", getDBLogPrefix() + "Statement executado.");
         pstm.close();
-        logger.log("INFO", getDbLogPrefix() + "Dados do jogador inseridos corretamente no banco de dados.");
+        logger.log("INFO", getDBLogPrefix() + "Dados do jogador inseridos corretamente no banco de dados.");
       }
     }
     catch (SQLException ex)
@@ -259,7 +298,13 @@ public class Database
     return this.playerExists;
   }
 
-
+  /**
+   * Retrieves specific information about the selected table.
+   * @param info the type of info that want to be accessed.<br>
+   * It is the same as a column of a table.
+   * @param user the username of the info would be provided.
+   * @return the data queried (the datacell value).
+   */
   public String getInfo(String info, String user)
   {
     result = "";
@@ -294,12 +339,12 @@ public class Database
     {
       Statement stm = con.createStatement();
       ResultSet rs = stm.executeQuery(selectAllStatement);
-      logger.log("INFO", getDbLogPrefix() + "Query executada.");
+      logger.log("INFO", getDBLogPrefix() + "Query executada.");
       while (rs.next())
       {
         dblist.add(rs.getString("username") + ", " + rs.getString("password") + ", " + rs.getString("backupTimestamp"));
       }
-      logger.log("INFO", getDbLogPrefix() + "Statement executado.");
+      logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       rs.close();
       stm.close();
     }
@@ -320,7 +365,7 @@ public class Database
     {
       Statement stm = con.createStatement();
       stm.executeUpdate(removePlayerStatement + "'" + user + "'");
-      logger.log("INFO", getDbLogPrefix() + "Statement executado.");
+      logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       stm.close();
     }
     catch (SQLException e)
@@ -344,7 +389,7 @@ public class Database
       pstm.setString(2,timestamp);
       pstm.setString(3,user);
       pstm.executeUpdate();
-      logger.log("INFO", getDbLogPrefix() + "Statement executado.");
+      logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       pstm.close();
     }
     catch (SQLException ex)

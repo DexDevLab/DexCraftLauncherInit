@@ -11,10 +11,10 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.net.ftp.FTPClient;
-
 
 
 /**
@@ -29,19 +29,6 @@ public class Connections
   private NumberFormat formatter = new DecimalFormat("#0.0");
   private int EOF = -1;
 
-  public FTPClient ftpClient;
-
-  private ErrorAlerts alerts = new ErrorAlerts();
-  private Logger logger = new Logger();
-
-  public Connections()
-  {
-    //Logger constructor.
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   /**
    * Set the progress of the speed meter.

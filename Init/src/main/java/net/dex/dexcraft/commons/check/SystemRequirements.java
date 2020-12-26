@@ -3,11 +3,12 @@ package net.dex.dexcraft.commons.check;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
+import net.dex.dexcraft.commons.dto.SessionDTO;
+import net.dex.dexcraft.commons.dto.SystemDTO;
 import net.dex.dexcraft.commons.tools.Connections;
 import net.dex.dexcraft.commons.tools.DexCraftFiles;
-import net.dex.dexcraft.commons.tools.ErrorAlerts;
-import net.dex.dexcraft.commons.tools.JSONUtility;
-import net.dex.dexcraft.commons.tools.Logger;
 import org.apache.commons.io.IOUtils;
 
 
@@ -17,18 +18,9 @@ import org.apache.commons.io.IOUtils;
  */
 public class SystemRequirements
 {
-  ErrorAlerts alerts = new ErrorAlerts();
-  Logger logger = new Logger();
-
-  /**
-   * Logger basic constructor.
-   */
-  private void setLogging()
+  public SystemRequirements()
   {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
+    SystemDTO.parseSystemAssets();
   }
 
   /**
@@ -36,12 +28,10 @@ public class SystemRequirements
    */
   public void checkRequirements()
   {
-    setLogging();
     logger.log("INFO", "Coletando dados da quantidade de RAM no computador...");
     logger.log("INFO", "O computador possui " + checkSystemRAMGB() + "GB de RAM instalados.");
-    JSONUtility ju = new JSONUtility();
-    long reqMin = Long.parseLong(ju.readValue(DexCraftFiles.coreFile, "Installer", "ReqsMinimumRAM"));
-    long uploadMinSpd = Long.parseLong(ju.readValue(DexCraftFiles.coreFile, "BackupService", "MinimumMbpsUploadSpeed"));
+    long reqMin = Long.parseLong(SystemDTO.getReqsMinimumRAM());
+    long uploadMinSpd = Long.parseLong(SystemDTO.getMinimumMbpsUploadSpeed());
     double reqMinD = (reqMin / 1000);
     logger.log("INFO", "Coletando informações sobre o Sistema Operacional...");
     if ((checkSystemRAMGB() < reqMinD) | (checkSystemArch().equals("x86")))
@@ -51,12 +41,15 @@ public class SystemRequirements
       alerts.noReq();
     }
     Connections con = new Connections();
-    if(con.getNominalUploadSpeed(ju.readValue(DexCraftFiles.coreFile, "BackupService", "SpeedTestFileURL"), DexCraftFiles.downloadTestFile) < uploadMinSpd)
+    long speed = con.getNominalUploadSpeed(SystemDTO.getSpeedTestFileURL(), DexCraftFiles.downloadTestFile);
+    SessionDTO.setNominalUploadSpeed(Long.toString(speed));
+    if( speed < uploadMinSpd)
     {
       alerts.noSpd();
-      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "DisableBackgroundServices", "true");
+      SessionDTO.setDisableDCBS(true);
     }
   }
+
 
   /**
    * Check if there's any Java installed on machine, and which version it has.
@@ -142,7 +135,6 @@ public class SystemRequirements
    */
   public int checkSystemRAMGB()
   {
-    setLogging();
     int ramresult = 0;
     try
     {

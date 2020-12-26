@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import net.dex.dexcraft.commons.tools.DexCraftFiles;
-import net.dex.dexcraft.commons.tools.ErrorAlerts;
-import net.dex.dexcraft.commons.tools.JSONUtility;
-import net.dex.dexcraft.commons.tools.Logger;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
+import net.dex.dexcraft.commons.dto.SessionDTO;
 
 
 /**
@@ -21,10 +20,7 @@ import net.dex.dexcraft.commons.tools.Logger;
  */
 public class OfflineMode
 {
-  static ErrorAlerts alerts = new ErrorAlerts();
   static boolean keepOfflineMode = false;
-  static Logger logger = new Logger();
-  static JSONUtility ju = new JSONUtility();
 
   /**
    * Check if Offline Mode was enabled before.
@@ -33,12 +29,8 @@ public class OfflineMode
    */
   public static boolean IsRunning()
   {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
     logger.log("INFO", "Verificando status do Modo Offline...");
-    if (ju.readValue(DexCraftFiles.launcherProperties, "LauncherProperties", "OfflineMode").equals("true"))
+    if (SessionDTO.isOfflineModeOn())
     {
       logger.log("INFO", "Modo Offline foi ativado na sessão anterior.");
       keepOfflineMode = alerts.offline(true);
@@ -46,7 +38,7 @@ public class OfflineMode
     if (!keepOfflineMode)
     {
       logger.log("INFO", "Modo Offline DESATIVADO pelo usuário.");
-      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "OfflineMode", "false");
+      SessionDTO.setOfflineModeStatus(keepOfflineMode);
       testConnection();
     }
     return keepOfflineMode;
@@ -90,7 +82,7 @@ public class OfflineMode
     keepOfflineMode = alerts.offline(false);
     if (keepOfflineMode)
     {
-      ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties","OfflineMode", "true");
+      SessionDTO.setOfflineModeStatus(keepOfflineMode);
       logger.log("INFO", "Modo Offline ATIVADO pelo usuário.");
     }
     else

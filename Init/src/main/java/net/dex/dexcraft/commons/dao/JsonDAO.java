@@ -1,4 +1,4 @@
-package net.dex.dexcraft.commons.tools;
+package net.dex.dexcraft.commons.dao;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,27 +12,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
 import org.json.JSONObject;
 
 /**
  * Manipulates JSON files.
  */
-public class JSONUtility
+public class JsonDAO
 {
-
-  private Logger logger = new Logger();
-  private ErrorAlerts alerts = new ErrorAlerts();
-
-  /**
-   * Constructor (custom alerts and logging).
-   */
-  public JSONUtility()
-  {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   /**
    * Reads JSON file.
@@ -218,7 +206,7 @@ public class JSONUtility
 ////  public static void main(String[] args)
 ////  {
 ////    File fileJSON = new File ("C:/corecfg.json");
-////    JSONUtility ju = new JSONUtility();
+////    JsonDAO ju = new JsonDAO();
 ////    List<String> list = new ArrayList<>();
 ////    list = ju.readList(fileJSON, "versions", "dexCraftLauncherInitVersion");
 ////    list.forEach((System.out::println));

@@ -1,14 +1,21 @@
 package net.dex.dexcraft.commons.tools;
 
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.stage.Stage;
 
 
 /**
@@ -17,13 +24,161 @@ import javafx.scene.text.Font;
  */
 public class DexUI
 {
-  private double globalProgressValue = 0;
+  private double IMAGE_OPACITY = 1.0;
+  private double IMAGE_FIT_WIDTH = 810;
+  private double IMAGE_FIT_HEIGHT = 570;
+  private Image imgToChange;
+
+
+  private Stage stg;
+  private ImageView mainImageView;
+
   private ProgressBar pbar;
+  private double globalProgressValue = 0;
+
   private Label mainLb;
   private Label secLb;
   private TextField mainTf;
   private PasswordField mainPf;
+
   private Button mainBt;
+  private MenuBar menuB;
+
+  private ImageView pingIcon;
+  private Label pingLabel;
+  private Label pingLabelTooltip;
+
+
+  /**
+   * GET the Ping Icon for ping monitoring utility.
+   * @return the Ping Icon.
+   */
+  public ImageView getPingIcon()
+  {
+    return this.pingIcon;
+  }
+
+  /**
+   * GET the label which shows current ping<br>
+   * on ping monitoring utility.
+   * @return the label.
+   */
+  public Label getPingLabel()
+  {
+    return this.pingLabel;
+  }
+
+  /**
+   * GET the label which will have tooltip about ping.
+   * @return the label.
+   */
+  public Label getPingLabelTooltip()
+  {
+    return this.pingLabelTooltip;
+  }
+
+  /**
+   * SET the Ping Icon for ping monitoring utility.
+   * @param icon the Ping Icon.
+   */
+  public void setPingIcon(ImageView icon)
+  {
+    this.pingIcon = icon;
+  }
+
+  /**
+   * SET the label which shows current ping<br>
+   * on ping monitoring utility.
+   * @param lb the label.
+   */
+
+  public void setPingLabel(Label lb)
+  {
+    this.pingLabel = lb;
+  }
+
+  /**
+   * SET the label which will have tooltip about ping.
+   * @param lb the label.
+   */
+  public void setPingLabelTooltip(Label lb)
+  {
+    this.pingLabelTooltip = lb;
+  }
+
+  /**
+   * GET the Image that need to be changed.
+   * @return the Image.
+   */
+  public Image getImgToChange()
+  {
+    return this.imgToChange;
+  }
+
+  /**
+   * GET the Stage.
+   * @return the Stage.
+   */
+  public Stage getStage()
+  {
+    return this.stg;
+  }
+
+  /**
+   * SET the Stage.
+   * @param stg the Stage.
+   */
+  public void setStage(Stage stg)
+  {
+    this.stg = stg;
+  }
+
+  /**
+   * GET the Image View of the interface.
+   * @return the Image View.
+   */
+  public ImageView getMainImageView()
+  {
+    return mainImageView;
+  }
+
+  /**
+   * SET the Image View of the interface.
+   * @param mainImg the Image View of the interface.
+   */
+  public void setMainImageView(ImageView mainImg)
+  {
+    this.mainImageView = mainImg;
+  }
+
+  /**
+   * GET the Image from the ImageView.
+   * @return the Image from the ImageView.
+   */
+  public Image getImage()
+  {
+    return this.mainImageView.getImage();
+  }
+
+   /**
+   * Retrieve the UI's menu bar.
+   * @return the menu bar
+   */
+  public MenuBar getMenuBar()
+  {
+    return this.menuB;
+  }
+
+  /**
+   * Sets the image, changing it with an animation.
+   * @param img the new image.
+   */
+  public void setImage(Image img)
+  {
+    this.imgToChange = img;
+    AnimationTimer fadeout = new FadeoutTimer();
+    fadeout.start();
+  }
 
   /**
    * Define the UI's Progress Bar.
@@ -133,9 +288,82 @@ public class DexUI
     Platform.runLater(() -> {mainBt.setDisable(isDisabled);});
   }
 
+  /**
+   * Define the UI's menu bar.
+   * @param mb the Menu Bar
+   */
+  public void setMenuBar(MenuBar mb)
+  {
+    menuB = mb;
+  }
 
+  /**
+   * Retrievethe UI's Progress Bar.
+   * @return the progress bar
+   */
+  public ProgressBar getProgressBar()
+  {
+    return this.pbar;
+  }
 
+  /**
+   * Image Changing animation (Fade Out transition).
+   */
+  private class FadeoutTimer extends AnimationTimer
+  {
 
+    @Override
+    public void handle(long now)
+    {
+      doHandle();
+    }
+
+    private void doHandle()
+    {
+      IMAGE_OPACITY -= 0.01;
+      getMainImageView().opacityProperty().set(IMAGE_OPACITY );
+      if (IMAGE_OPACITY <= 0)
+      {
+        stop();
+        getMainImageView().setPreserveRatio(false);
+        getMainImageView().setFitWidth(IMAGE_FIT_WIDTH);
+        getMainImageView().setFitHeight(IMAGE_FIT_HEIGHT);
+        getMainImageView().setImage(getImgToChange());
+        AnimationTimer fadein = new FadeinTimer();
+        fadein.start();
+      }
+    }
+  }
+
+  /**
+   * Image Changing animation (Fade In transition).
+   */
+  private class FadeinTimer extends AnimationTimer
+  {
+
+    @Override
+    public void handle(long now)
+    {
+      doHandle();
+    }
+
+    private void doHandle()
+    {
+      IMAGE_OPACITY += 0.01;
+      getMainImageView().opacityProperty().set(IMAGE_OPACITY );
+      if (IMAGE_OPACITY >= 1.0)
+      {
+        stop();
+      }
+
+    }
+  }
+
+  /**
+   * Set CSS Style on a node or element.
+   * @param obj the node or element to apply the style.
+   * @param style the FX Style on "-fx" specification.
+   */
   public void setStyle(String obj, String style)
   {
     switch (obj)
@@ -175,7 +403,7 @@ public class DexUI
       // Time between progress bar changes. Increase
         // it to have a bigger gap between progress
         // transitions.
-      Thread.sleep(50);
+      Thread.sleep(400);
       double progressValue = 0;
       if (isValuePercent)
       {
@@ -232,7 +460,7 @@ public class DexUI
   public void resetProgress()
   {
     globalProgressValue = 0.0;
-    changeProgress(true, 0.1, 10);
+    changeProgress(true, 0, 10);
   }
 
   /**
@@ -244,7 +472,8 @@ public class DexUI
   {
     Tooltip tooltip = new Tooltip();
     tooltip.setWrapText(true);
-    tooltip.setFont(new Font("MS Outlook", 13));
+    Font font = Font.font("SegoeUI", FontWeight.NORMAL, FontPosture.ITALIC, 12);
+    tooltip.setFont(font);
     tooltip.setText(text);
     return tooltip;
   }

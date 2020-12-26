@@ -1,7 +1,5 @@
-
-
 # License
-This program and its files, its codes, implementation and functions are under the GNU AFFERO GENERAL PUBLIC LICENSE Version 3.
+This program and its files, its codes, implementation and functions are under the GNU GENERAL PUBLIC LICENSE Version 3.
 
 # DexCraft Launcher Init
 This repository contains the DexCraft Launcher's Initializer, which I call DexCraft Launcher Init, or just Init for short.
@@ -224,3 +222,61 @@ I changed the entire utility classes to another folder in package so I can make 
 * Alerts.java:
 	* Name changed to "ErrorAlerts".
 	* Added funcionality to retrieve alert window icon by getter and constructor reference.
+
+## v2.1.3-201225-601
+Gladly back to Github!
+
+* DexCraft Commons Classes:
+	In order to keep the getters and setters better organized, and keep a better code maintenability, I separate the Utility Classes in DAO/DTO model. I could use JSON serialization, but I didn't prefer it.
+	* AdminExecution.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+	* OfflineMode.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+		* Removal JSONUtility instances and using DTO to data transfering.
+	* PreventSecondInstance.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+		* Removal JSONUtility instances and using DTO to data transfering.
+	* ProvisionedPackage.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+		* Removal JSONUtility instances and using DTO to data transfering.
+		* Added method for checking package presence.
+		* Refactored method for checking if package is outdated.
+	* SystemRequirements.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+		* Removal JSONUtility instances and using DTO to data transfering.
+	* Database.java:
+		* Name changed to SqlDAO to fit more suitable to its function.
+	* FTP.java:
+		* Name changed to FtpDAO to fit more suitable to its function.
+	* JSONUtility.java:
+		* Name changed to JsonDAO to fit more suitable to its function.
+	* Close.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+		* Removal JSONUtility instances and using DTO to data transfering.
+		* Entire refactoring to better readability.
+	* Crypto.java:
+		* Created class to encrypt backup file passwords.
+	* DexCraftFiles.java:
+		* Changed DexCraft Launcher installed directory's folder structure, centralizing their folders inside C:\DexCraft\launcher.
+		* Created file variables for checking program and game client installation.
+	* DexUI.java:
+		* Added funcionalities for Ping Monitoring Service and Background Randomizer Service, with transition animation for background changes.
+	* Download.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances. 
+	* ErrorAlerts.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances. 
+		* Adjusted the Close class callers.
+	* FileIO.java:
+		* Logger constructor removal from class since Commons now have a main class to bind instances.
+	* Install.java:
+		* Created method to download patch file and verify installation aditional rules (like special file exclusions).
+	* Validate.java:
+		* Now organized as a Service.
+	* DexCraft Launcher Init:
+	* CSS - fxmlFont1.css:
+		* Removed translate-y parameter.
+	* FXML - Preloader.fxml:
+		* Reduced scene size.
+	* Init.java:
+		* Changed changeStatus method to suit better to new Validate functions related to interactions with other scenes.
+	  

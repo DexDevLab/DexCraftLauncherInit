@@ -2,6 +2,8 @@ package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
+import static net.dex.dexcraft.commons.Commons.logger;
+import net.dex.dexcraft.commons.dto.SessionDTO;
 
 /**
  * Class for closing program properly,
@@ -9,61 +11,81 @@ import java.io.File;
  */
 public class Close
 {
-  private static Logger logger;
+
+  private static Clean clean = new Clean();
 
   /**
-   * Close the program properly, removing
-   * temporary folders and unneeded lockers.
-   * @param code the closing code:<br>
-   * 0 - normal Init closing. Keeps the instance
+   * Closes DexCraft Launcher Init. Keeps the instance
    * lock, the log lock and the run folder, needed
-   * to the Launcher Client and the DCBS.<br>
-   * 1 - normal Client closing.
-   * 9 - program exiting with error because of a
-   * critical exception, or used when DCBS closes
-   * completely.
+   * to the Launcher Client and the DCBS.
    */
-  public static void close(int code)
+  public static void init()
   {
-    logger = new Logger();
-    Clean clean = new Clean();
-    JSONUtility ju = new JSONUtility();
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-    logger.log("INFO", "Exit Code: " + code);
-    switch (code)
-    {
-      case 0:
-        logger.log("INFO", "Fechando DexCraft Launcher Init...");
-        clean.excluir(DexCraftFiles.adminCheck, false);
-        clean.excluir(DexCraftFiles.tempFolder, true);
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
-        break;
-      case 1:
-        logger.log("INFO", "Fechando DexCraft Launcher Client...");
-        clean.excluir(DexCraftFiles.adminCheck, false);
-        clean.excluir(DexCraftFiles.tempFolder, true);
-//        clean.excluir(DexCraftFiles.logLock, false);
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherInitRunning", "false");
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
-        break;
-      case 9:
-        logger.log("INFO", "Fechando...");
-        clean.excluir(DexCraftFiles.adminCheck, false);
-        clean.excluir(DexCraftFiles.tempFolder, true);
-        clean.excluir(DexCraftFiles.logLock, false);
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherInitRunning", "false");
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftLauncherClientRunning", "false");
-        ju.editValue(DexCraftFiles.launcherProperties, "LauncherProperties", "IsDexCraftBackgroundServicesRunning", "false");
-        break;
-      default:
-    }
-    System.exit(0);
+    logger.log("INFO", "Fechando DexCraft Launcher Init...");
+    clean.excluir(DexCraftFiles.adminCheck, false);
+    clean.excluir(DexCraftFiles.tempFolder, true);
+    SessionDTO.setDexCraftLauncherClientInstance(false);
+    SessionDTO.setDexCraftBackgroundServicesInstance(false);
   }
+
+  /**
+   * Closes DexCraft Launcher Client.
+   */
+  public static void client()
+  {
+    logger.log("INFO", "Fechando DexCraft Launcher Client...");
+    clean.excluir(DexCraftFiles.adminCheck, false);
+    clean.excluir(DexCraftFiles.tempFolder, true);
+    SessionDTO.setDexCraftLauncherInitInstance(true);
+    SessionDTO.setDexCraftLauncherClientInstance(true);
+    SessionDTO.setDexCraftBackgroundServicesInstance(false);
+  }
+
+  /**
+   * Closes DexCraft Background Services.
+   */
+  public static void backgroundServices()
+  {
+    logger.log("INFO", "Fechando DexCraft Background Services...");
+    clean.excluir(DexCraftFiles.adminCheck, false);
+    clean.excluir(DexCraftFiles.tempFolder, true);
+    clean.excluir(DexCraftFiles.logLock, false);
+    SessionDTO.setDexCraftLauncherInitInstance(false);
+    SessionDTO.setDexCraftLauncherClientInstance(false);
+    SessionDTO.setDexCraftBackgroundServicesInstance(false);
+    SessionDTO.setSessionPassword("null");
+  }
+
+  /**
+   * Closes program after exceptions or critical errors.
+   */
+  public static void withErrors()
+  {
+    logger.log("INFO", "PROGRAMA FECHADO COM ERROS!");
+    clean.excluir(DexCraftFiles.adminCheck, false);
+    clean.excluir(DexCraftFiles.tempFolder, true);
+    clean.excluir(DexCraftFiles.logLock, false);
+    SessionDTO.setDexCraftLauncherInitInstance(false);
+    SessionDTO.setDexCraftLauncherClientInstance(false);
+    SessionDTO.setDexCraftBackgroundServicesInstance(false);
+    SessionDTO.setSessionPassword("null");
+  }
+
+  /**
+   * Closes normally the program, under user's call.
+   */
+  public static void quit()
+  {
+    logger.log("INFO", "Fechando...");
+    clean.excluir(DexCraftFiles.adminCheck, false);
+    clean.excluir(DexCraftFiles.tempFolder, true);
+    clean.excluir(DexCraftFiles.logLock, false);
+    SessionDTO.setDexCraftLauncherInitInstance(false);
+    SessionDTO.setDexCraftLauncherClientInstance(false);
+    SessionDTO.setDexCraftBackgroundServicesInstance(false);
+    SessionDTO.setSessionPassword("null");
+  }
+
 
   /**
    * Since its common the FileIO Class provide an

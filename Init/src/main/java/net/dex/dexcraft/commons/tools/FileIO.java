@@ -16,6 +16,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
@@ -26,24 +28,9 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 public class FileIO
 {
 
-  private ErrorAlerts alerts;
   private int fileIoErrorCode = 0;
   private File src;
   private File dest;
-  private static Logger logger;
-
-  /**
-   * Logger constructor on Class instance.
-   */
-  public FileIO()
-  {
-    alerts = new ErrorAlerts();
-    logger = new Logger();
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   /**
    * Copy file or folder operation.
@@ -61,12 +48,12 @@ public class FileIO
         if (!dest.exists()) {dest.mkdirs();}
         try
         {
-          logger.log("INFO", "Copiando o diretório \"" + src.toString() + "\" para o diretório \"" + dest.toString() + "\"...");
+          logger.log("INFO", "Copiando o diretório " + src.toString() + " para o diretório " + dest.toString() + "...");
           FileUtils.copyDirectory(src, dest);
           Iterator<File> files = FileUtils.iterateFilesAndDirs(src,new WildcardFileFilter("*.*"), new WildcardFileFilter("*"));
           files.forEachRemaining((f)->
           {
-            logger.log("INFO", "Copiado arquivo/diretório \"" + f + "");
+            logger.log("INFO", "Copiado arquivo/diretório " + f + "");
           });
         }
         catch (IOException ex)
@@ -86,7 +73,7 @@ public class FileIO
         if (!dest.exists()) {dest.mkdirs();}
         try
         {
-          logger.log("INFO", "Copiando o arquivo \"" + src.toString() + "\" para o diretório \"" + dest.toString() + "\"");
+          logger.log("INFO", "Copiando o arquivo " + src.toString() + " para o diretório " + dest.toString() + "");
           FileUtils.copyFileToDirectory(src, dest);
         }
         catch (IOException ex)
@@ -98,7 +85,7 @@ public class FileIO
       {
         try
         {
-          logger.log("INFO", "Copiando o arquivo \"" + src.toString() + "\" para \"" + dest.toString() + "\"");
+          logger.log("INFO", "Copiando o arquivo " + src.toString() + " para " + dest.toString() + "");
           FileUtils.copyFile(src, dest);
         }
         catch (IOException ex)
@@ -118,7 +105,7 @@ public class FileIO
   {
     src = new File (source.toString());
     dest = new File (destination.toString());
-    logger.log("INFO", "Iniciando movimentação: de \"" + src.toString() + "\" para \"" + dest.toString() + "\"");
+    logger.log("INFO", "Iniciando movimentação: de " + src.toString() + " para " + dest.toString() + "");
     if (!dest.exists()) {dest.mkdirs();}
     copiar(src, dest);
     if (src.isDirectory())
@@ -131,7 +118,7 @@ public class FileIO
     }
     if (src.exists())
     {
-      logger.log("***ERRO***", "EXCEÇÃO EM FileIO.mover(File, File) - ARQUIVO DE ORIGEM \"" + src.toString() + "\" AINDA EXISTE");
+      logger.log("***ERRO***", "EXCEÇÃO EM FileIO.mover(File, File) - ARQUIVO DE ORIGEM " + src.toString() + " AINDA EXISTE");
     }
   }
 
@@ -161,7 +148,7 @@ public class FileIO
               {
                 if(includeParentDir)
                 {
-                  logger.log("INFO", "Excluindo diretório pai \"" + src.toString() + "\"...");
+                  logger.log("INFO", "Excluindo diretório pai " + src.toString() + "...");
                   FileUtils.deleteDirectory(file);
                 }
               }
@@ -174,7 +161,7 @@ public class FileIO
           }
           else
           {
-            logger.log("INFO", "Excluindo arquivo \"" + file.toString() + "\"...");
+            logger.log("INFO", "Excluindo arquivo " + file.toString() + "...");
             FileUtils.deleteQuietly(file);
           }
         });
@@ -189,14 +176,14 @@ public class FileIO
       {
         if ((src.isFile()) | (includeParentDir))
         {
-          logger.log("***ERRO***","Não foi possível remover SOURCE \"" + src.toString() + "\"");
+          logger.log("***ERRO***","Não foi possível remover SOURCE " + src.toString() + "");
           error(3);
         }
       }
     }
     else
     {
-      logger.log("***ERRO***", "SOURCE \"" + src.toString() + "\" não existe.");
+      logger.log("***ERRO***", "SOURCE " + src.toString() + " não existe.");
       error(4);
     }
   }
@@ -266,19 +253,19 @@ public class FileIO
       {
         case 1:
           alerts.setHeaderText("Falha durante processo de cópia.");
-          alerts.setContentText("SOURCE \"" + src.toString() + "\" é um diretório, mas DESTINATION \"" + dest.toString() + "\" é um arquivo.");
+          alerts.setContentText("SOURCE " + src.toString() + " é um diretório, mas DESTINATION " + dest.toString() + " é um arquivo.");
           break;
         case 2:
           alerts.setHeaderText("Falha durante processo de mover.");
-          alerts.setContentText("Não foi possível remover SOURCE \"" + src.toString() + "\" após copiar.");
+          alerts.setContentText("Não foi possível remover SOURCE " + src.toString() + " após copiar.");
           break;
         case 3:
           alerts.setHeaderText("Falha durante processo de excluir.");
-          alerts.setContentText("Não foi possível remover SOURCE \"" + src.toString() + "\"");
+          alerts.setContentText("Não foi possível remover SOURCE " + src.toString() + "");
           break;
         case 4:
           alerts.setHeaderText("Falha durante processo de excluir");
-          alerts.setContentText("SOURCE \"" + src.toString() + "\" não existe.");
+          alerts.setContentText("SOURCE " + src.toString() + " não existe.");
           break;
         default:
           break;
@@ -289,7 +276,7 @@ public class FileIO
       if (result.get() == btnok)
       {
         fileIoErrorCode = 0;
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }

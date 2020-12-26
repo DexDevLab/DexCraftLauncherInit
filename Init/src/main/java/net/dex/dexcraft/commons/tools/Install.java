@@ -8,10 +8,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
+import net.dex.dexcraft.commons.dao.JsonDAO;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 
 
@@ -20,24 +26,12 @@ import org.apache.commons.compress.utils.IOUtils;
  */
 public class Install
 {
-  private ErrorAlerts alerts = new ErrorAlerts();
-  private Logger logger = new Logger();
   private ZipFile zipFile = null;
   private String installingFileName = "";
   private String totalFilesQuantity = "";
   private String installingFilePosition = "";
   private String progressPercent = "";
   private NumberFormat formatter = new DecimalFormat("#0.00");
-
-
-  public Install()
-  {
-    //Logger constructor.
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   /**
    * Get the name of the file it is been extracted.
@@ -164,13 +158,40 @@ public class Install
       catch (IOException ex)
       {
         alerts.exceptionHandler(ex, "EXCEÇÃO EM Install.downloadedZipResource(File, File)");
-        Close.close(9);
       }
       finally
       {
         ZipFile.closeQuietly(zipFile);
       }
     }
+  }
+
+  /**
+   * Download a patch file, verify the installing additional rules<br>
+   * and execute them.
+   * @param zipResource the installing source
+   * @param destinationDir the installation directory
+   */
+  public void downloadedZipPatch(File zipResource, File destinationDir)
+  {
+    this.downloadedZipResource(zipResource, destinationDir);
+    logger.log("INFO", "Realizando rotinas de instalação do patch...");
+    File patchFile = new File (destinationDir.toString() + "/src/patch.json");
+    JsonDAO json = new JsonDAO();
+    List<String> exclusions = new ArrayList<>();
+    exclusions = json.readList(patchFile, "PatchingTasks", "Exclusions");
+    exclusions.forEach((item)->
+    {
+      if (!new File(item).exists())
+      {
+        logger.log("INFO", "Arquivo / Diretório " + item + " não foi encontrado.");
+      }
+      else
+      {
+        FileUtils.deleteQuietly(new File(item));
+        logger.log("INFO", "Arquivo / Diretório " + item + " excluído com sucesso.");
+      }
+    });
   }
 
 

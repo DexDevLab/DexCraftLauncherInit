@@ -1,10 +1,10 @@
-package net.dex.dexcraft.commons.tools;
+package net.dex.dexcraft.commons.dao;
 
 
 /**
- *
+ * DAO Utility Class for FTP connection.
  */
-public class FTP
+public class FtpDAO
 {
 
   private String address;
@@ -13,52 +13,91 @@ public class FTP
   private String password;
   private String workingDir;
 
+  /**
+   * GET the FTP Server's address.
+   * @return the server address.
+   */
   public String getAddress()
   {
     return address;
   }
 
+  /**
+   * SET the FTP Server's address.
+   * @param address the server address.
+   */
   public void setAddress(String address)
   {
     this.address = address;
   }
 
-
+  /**
+   * GET the FTP Server's port.
+   * @return the server port.
+   */
   public int getPort()
   {
     return port;
   }
 
+  /**
+   * SET the FTP Server's port.
+   * @param port the server oort.
+   */
   public void setPort(int port)
   {
     this.port = port;
   }
 
+  /**
+   * GET the FTP connection user
+   * @return the user
+   */
   public String getUser()
   {
     return user;
   }
 
+  /**
+   * SET the FTP Server's user
+   * @param user the connection user
+   */
   public void setUser(String user)
   {
     this.user = user;
   }
 
+  /**
+   * GET the FTP connection password.
+   * @return the server password
+   */
   public String getPassword()
   {
     return password;
   }
 
+  /**
+   * SET the FTP Server's password
+   * @param password the connection password.
+   */
   public void setPassword(String password)
   {
     this.password = password;
   }
 
+  /**
+   * GET the FTP connection's working directory
+   * @return the working directory.
+   */
   public String getWorkingDir()
   {
     return workingDir;
   }
 
+  /**
+   * SET the FTP connection's working directory
+   * @param workingDir the working directory
+   */
   public void setWorkingDir(String workingDir)
   {
     this.workingDir = workingDir;
@@ -114,7 +153,7 @@ public class FTP
 //          }
 //          catch (IOException ex)
 //          {
-//            L.log(ex, "ERRO", "EXCEÇÃO EM stepValidateCredentials() - IMPOSSÍVEL DESCONECTAR A CONEXÃO FTP EM ABERTO");
+//            L.log(ex, "ERRO", "EXCEÇÃO EM stepValidateCredentials() - IMPOSSÍVEL DESCONECTAR A CONEXÃO FtpDAO EM ABERTO");
 //          }
 
 }

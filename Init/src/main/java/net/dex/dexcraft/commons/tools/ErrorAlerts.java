@@ -16,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import static net.dex.dexcraft.commons.Commons.logger;
 
 
 /**
@@ -46,24 +47,19 @@ public class ErrorAlerts
   private String inputUser = "";
   private String inputPassword = "";
 
-  Logger logger = new Logger();
-
   /**
-   * Logger basic constructor.
+   * SET the image for alert window icon.
+   * @param img the image.
    */
-  private void setLogging()
-  {
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
-
   public void setImage(Image img)
   {
     this.image = img;
   }
 
+  /**
+   * GET the image for alert window icon.
+   * @return the image.
+   */
   private Image getImage()
   {
     return this.image;
@@ -77,7 +73,6 @@ public class ErrorAlerts
    */
   private void alertLock(FutureTask<String> futureTask)
   {
-    setLogging();
     while(!futureTask.isDone())
     {
       try
@@ -96,7 +91,6 @@ public class ErrorAlerts
    */
   public void noAdmin()
   {
-    setLogging();
     FutureTask<String> noAdmin = new FutureTask<>(new NoAdmin());
     logger.log("INFO", "Exibindo Alerts.NoAdmin()...");
     Platform.runLater(noAdmin);
@@ -122,7 +116,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro de Inicialização");
       alerts.setHeaderText("Sistema Anti-Palles™");
@@ -134,7 +128,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }
@@ -145,7 +139,6 @@ public class ErrorAlerts
    */
   public void tryAgain()
   {
-    setLogging();
     FutureTask<String> tryAgain = new FutureTask<>(new TryAgain());
     logger.log("INFO", "Exibindo Alerts.TryAgain()...");
     Platform.runLater(tryAgain);
@@ -172,7 +165,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro Crítico");
       alerts.setHeaderText("Houve um erro crítico durante a execução do DexCraft Launcher.");
@@ -182,7 +175,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }
@@ -193,7 +186,6 @@ public class ErrorAlerts
    */
   public void accountBlocked()
   {
-    setLogging();
     FutureTask<String> accountBlocked = new FutureTask<>(new AccountBlocked());
     logger.log("INFO", "Exibindo Alerts.TryAgain()...");
     Platform.runLater(accountBlocked);
@@ -218,7 +210,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro Crítico");
       alerts.setHeaderText("Bloqueio de segurança");
@@ -229,7 +221,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }
@@ -290,7 +282,6 @@ public class ErrorAlerts
    */
   public void noReq()
   {
-    setLogging();
     FutureTask<String> noReq = new FutureTask<>(new NoReq());
     logger.log("INFO", "Exibindo Alerts.NoArch()...");
     Platform.runLater(noReq);
@@ -316,7 +307,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro");
       alerts.setHeaderText("");
@@ -330,7 +321,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnnao)
       {
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }
@@ -348,7 +339,6 @@ public class ErrorAlerts
    */
   public boolean offline(Boolean offline)
   {
-    setLogging();
     offlineModeBefore = offline;
     FutureTask<String> offlineMode = new FutureTask<>(new OfflineMode());
     logger.log("INFO", "Exibindo Alerts.OfflineMode()...");
@@ -380,7 +370,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       ButtonType sim = null;
       ButtonType nao = null;
@@ -414,7 +404,7 @@ public class ErrorAlerts
       {
         if (!offlineModeBefore)
         {
-          Close.close(9);
+          Close.withErrors();
         }
       }
       return null;
@@ -429,7 +419,6 @@ public class ErrorAlerts
    */
   public boolean newAccount(String user, String password)
   {
-    setLogging();
     inputUser = user;
     inputPassword = password;
     FutureTask<String> newAccount = new FutureTask<>(new NewAccount());
@@ -483,7 +472,6 @@ public class ErrorAlerts
    */
   public void noCoreFile()
   {
-    setLogging();
     FutureTask<String> noCoreFile = new FutureTask<>(new NoCoreFile());
     logger.log("INFO", "Exibindo Alerts.noCoreFile()...");
     Platform.runLater(noCoreFile);
@@ -507,7 +495,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro do CoreFile");
       alerts.setHeaderText("O CoreFile não pôde ser baixado ou carregado no sistema. Causa desconhecida.");
@@ -517,7 +505,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Close.close(9);
+        Close.withErrors();
       }
       return null;
     }
@@ -528,7 +516,6 @@ public class ErrorAlerts
    */
   public void noSpd()
   {
-    setLogging();
     FutureTask<String> noSpd = new FutureTask<>(new NoSpd());
     logger.log("INFO", "Exibindo Alerts.NoSpd()...");
     Platform.runLater(noSpd);
@@ -551,7 +538,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro de Conexão");
       alerts.setHeaderText("Baixa Velocidade de Upload");
@@ -565,7 +552,51 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnnao)
       {
-        Close.close(9);
+        Close.withErrors();
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Calls the "No Components" alert.
+   */
+  public void noComponents()
+  {
+    FutureTask<String> noComponents = new FutureTask<>(new NoComponents());
+    logger.log("INFO", "Exibindo Alerts.NoSpd()...");
+    Platform.runLater(noComponents);
+    logger.log("INFO", "Aguardando resposta do usuário...");
+    alertLock(noComponents);
+    logger.log("INFO", "Alerts.NoSpd() finalizado");
+  }
+
+  /**
+   * This alert is shown when important files are missing for proper
+   * game client execution.
+   */
+  class NoComponents implements Callable
+  {
+
+    @Override
+    public NoComponents call() throws Exception
+    {
+      Alert alerts = new Alert(Alert.AlertType.ERROR);
+      alerts.initModality(Modality.APPLICATION_MODAL);
+      Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
+      stage.getIcons().add(getImage());
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
+      alerts.getButtonTypes().clear();
+      alerts.setTitle("Erro no Client");
+      alerts.setHeaderText("Componentes Ausentes");
+      alerts.setContentText("Componentes essenciais para a execução do client de jogo estão faltando ou estão corrompidos.\n"
+                            + "Reinicie o Launcher com conexão com a internet para resolver o problema.");
+      ButtonType btnok = new ButtonType("OK");
+      alerts.getButtonTypes().add(btnok);
+      Optional<ButtonType> result = alerts.showAndWait();
+      if (result.get() == btnok)
+      {
+        Close.withErrors();
       }
       return null;
     }
@@ -579,7 +610,6 @@ public class ErrorAlerts
    */
   public void exceptionHandler(Throwable ex, String exceptionMessage)
   {
-    setLogging();
     logger.log(ex, exceptionMessage);
     FutureTask<String> exceptionhandler = new FutureTask<>(new ExceptionHandler());
     logger.log("INFO", "Exibindo Alerts.exceptionHandler(Throwable, String)");
@@ -589,7 +619,7 @@ public class ErrorAlerts
     logger.log("INFO", "Aguardando resposta do usuário...");
     alertLock(exceptionhandler);
     logger.log("INFO", "Alerts.exceptionHandler(Throwable, String) finalizado");
-    Close.close(9);
+    Close.withErrors();
   }
 
   /**
@@ -608,7 +638,7 @@ public class ErrorAlerts
       alerts.setContentText(exceptionHandlerContext);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.close(9);});
+      stage.setOnCloseRequest((e) -> {Close.withErrors();});
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw);
       exceptionHandlerThrowable.printStackTrace(pw);

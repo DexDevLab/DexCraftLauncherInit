@@ -1,24 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.StackPane?>
 
-<StackPane fx:id="stackpane" prefHeight="376.0" prefWidth="606.0" xmlns="http://javafx.com/javafx/8.0.271" xmlns:fx="http://javafx.com/fxml/1">
+<StackPane fx:id="stackpane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="480.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView fx:id="bgimage" fitHeight="382.0" fitWidth="606.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="bgimage" fitHeight="300.0" fitWidth="480.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@Splash3.jpg" />
          </image>
       </ImageView>
-      <Pane>
+      <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300.0" prefWidth="480.0">
          <children>
-            <ProgressBar fx:id="pbar1" layoutY="374.0" prefHeight="11.0" prefWidth="606.0" progress="0.0" stylesheets="@gradientprogressbar2.css" visible="false" />
-            <Label layoutX="66.0" layoutY="168.0" styleClass="title" stylesheets="@fxmlFont1.css" text="DexCraft Launcher">
+            <Label layoutX="32.0" layoutY="126.0" prefHeight="40.0" prefWidth="416.0" styleClass="title" stylesheets="@fxmlFont1.css" text="DexCraft Launcher" textAlignment="CENTER">
                <effect>
                   <DropShadow />
                </effect>

@@ -10,6 +10,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
+import net.dex.dexcraft.commons.dto.SessionDTO;
 import org.apache.commons.io.FileUtils;
 
 
@@ -28,8 +31,6 @@ public class Download
   long startTime = 0;
   private static int EOF = -1;
   private static int DEFAULT_BUFFER_SIZE = 1024 * 4;
-  private ErrorAlerts alerts = new ErrorAlerts();
-  private Logger logger = new Logger();
   private FileIO file = new FileIO();
   private NumberFormat formatter = new DecimalFormat("#0.0");
   private NumberFormat formatter2 = new DecimalFormat("#0.00");
@@ -42,16 +43,6 @@ public class Download
   private String estimatedSeconds = "";
   private String progressPercent = "";
   private String downloadSpeed = "";
-
-
-  public Download()
-  {
-    //Logger constructor.
-    logger.setLogLock(DexCraftFiles.logLock);
-    logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
-    logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
-    logger.setLogDir(DexCraftFiles.logFolder);
-  }
 
   /**
    * Get the downloaded file size.
@@ -161,19 +152,10 @@ public class Download
   public void setDownloadSpeed(String value) { this.downloadSpeed = value; }
 
   /**
-   * Logger basic constructor.
-   */
-  private void setLogging()
-  {
-
-  }
-
-  /**
    * Method for downloading the CoreFile.
    */
   public void coreFile()
   {
-    setLogging();
     logger.log("INFO", "Verificando se existe um CoreFile anterior...");
     if (DexCraftFiles.coreFile.exists())
     {
@@ -183,8 +165,7 @@ public class Download
     try
     {
       logger.log("INFO", "Coletando link de download do CoreFile...");
-      JSONUtility ju = new JSONUtility();
-      downloadURL = new URL(ju.readValue(DexCraftFiles.coreFileLinkFile, "URLs", "CoreFileURL"));
+      downloadURL = new URL(SessionDTO.getCoreFileURL());
       logger.log("INFO", "Baixando CoreFile...");
       FileUtils.copyURLToFile(downloadURL, DexCraftFiles.coreFile);
       logger.log("INFO", "Download concluído...");

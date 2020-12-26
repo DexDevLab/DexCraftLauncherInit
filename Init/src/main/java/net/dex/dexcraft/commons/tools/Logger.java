@@ -9,7 +9,6 @@ import net.dex.dexcraft.commons.check.SystemRequirements;
 import org.apache.commons.io.FileUtils;
 
 
-
 /**
  * Generates a Log.
  */
