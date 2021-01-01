@@ -43,7 +43,7 @@ public class FileIO
     dest = new File (destination.toString());
     if (src.isDirectory())
     {
-      if (dest.isDirectory())
+      if (!dest.isFile())
       {
         if (!dest.exists()) {dest.mkdirs();}
         try

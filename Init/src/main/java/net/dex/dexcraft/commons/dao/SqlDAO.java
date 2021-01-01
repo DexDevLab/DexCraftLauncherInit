@@ -54,17 +54,13 @@ public class SqlDAO
 
       this.createTableStatement = "CREATE TABLE IF NOT EXISTS players (\n"
                                   + "username varchar(20) PRIMARY KEY,\n"
-                                  + "password varchar(20) NOT NULL,"
-                                  + "backupTimestamp varchar(100) NOT NULL\n"
-                                  +");";
+                                  + "password varchar(20) NOT NULL);";
       this.insertPlayerStatement = "INSERT INTO players("
-                                  +"username, password, backupTimestamp) VALUES("
-                                  +"?,?,?)";
+                                  +"username, password) VALUES(?,?)";
       this.selectAllStatement = "SELECT * FROM players";
       this.selectOneStatement = "SELECT * FROM players WHERE username= ?";
       this.removePlayerStatement = "DELETE FROM players WHERE username = ?";
       this.editPlayerStatement = "UPDATE players SET password = ?, "
-                                 + "backupTimestamp = ? "
                                  + "WHERE username = ?";
     }
     catch (ClassNotFoundException ex)
@@ -255,9 +251,8 @@ public class SqlDAO
    * Add a new player to database.
    * @param user the player's username
    * @param pass the player's password
-   * @param timestamp the last backup timestamp
    */
-  public void insertPlayer(String user, String pass, String timestamp)
+  public void insertPlayer(String user, String pass)
   {
     try
     {
@@ -266,7 +261,6 @@ public class SqlDAO
         PreparedStatement pstm = con.prepareStatement(insertPlayerStatement);
         pstm.setString(1,user);
         pstm.setString(2,pass);
-        pstm.setString(3,timestamp);
         pstm.executeUpdate();
         logger.log("INFO", getDBLogPrefix() + "Statement executado.");
         pstm.close();
@@ -342,7 +336,7 @@ public class SqlDAO
       logger.log("INFO", getDBLogPrefix() + "Query executada.");
       while (rs.next())
       {
-        dblist.add(rs.getString("username") + ", " + rs.getString("password") + ", " + rs.getString("backupTimestamp"));
+        dblist.add(rs.getString("username") + ", " + rs.getString("password"));
       }
       logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       rs.close();
@@ -378,16 +372,14 @@ public class SqlDAO
    * Edit player data on database.
    * @param user the player's username.
    * @param pass the player's password.
-   * @param timestamp the player's last backup timestamp.
    */
-  public void editPlayer(String user, String pass, String timestamp)
+  public void editPlayer(String user, String pass)
   {
     try
     {
       PreparedStatement pstm = con.prepareStatement(editPlayerStatement);
       pstm.setString(1,pass);
-      pstm.setString(2,timestamp);
-      pstm.setString(3,user);
+      pstm.setString(2,user);
       pstm.executeUpdate();
       logger.log("INFO", getDBLogPrefix() + "Statement executado.");
       pstm.close();
@@ -397,20 +389,4 @@ public class SqlDAO
       alerts.exceptionHandler(ex, "EXCEÇÃO EM Database.editPlayer(String, String, String)");
     }
   }
-
-
-//  USAGE EXAMPLE
-//  public static void main(String[] args)
-//  {
-//    File dbFile = new File("C:/players.db");
-//    SQLite sq = new SQLite(dbFile.toString());
-//    sq.createTable();
-//    sq.insertPlayer("Teste", "1234", "01234567890");
-//    sq.insertPlayer("Teste2", "12345", "01234567890");
-//    sq.insertPlayer("Teste3", "12345", "01234567890");
-//    sq.removePlayer("Teste");
-//    System.out.println(sq.selectAll());
-//    sq.editPlayer("Teste3", "1111111", "22222");
-//    System.out.println(sq.selectAll());
-//  }
 }

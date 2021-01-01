@@ -9,6 +9,7 @@ import java.io.File;
  */
 public class DexCraftFiles
 {
+
   //*******************************Main program folders************************************************//
 
   /** Root directory. */
@@ -19,8 +20,15 @@ public class DexCraftFiles
   public static File logFolder = new File(launcherFolder + "/logs");
   /** Temporary folder for common tasks. */
   public static File tempFolder = new File (launcherFolder + "/temp");
+  /** Folder containing last sync data made. */
+  public static File gameCache = new File(launcherFolder + "/game");
+  /** Folder containing 3rd party programs needed to the launcher. */
+  public static File launcherBinaries = new File (launcherFolder + "/binaries");
+  /** Folder containing the internal launcher and scripts. */
+  public static File runtimeFolder = new File(launcherFolder + "/rtm");
 
-  //*********************************Launcher shortcuts**********************************************//
+
+  //*********************************Launcher shortcuts************************************************//
 
   /** Launcher shortcut source location. */
   public static File shortcutSrc = new File(launcherFolder + "/DexCraft Launcher.lnk");
@@ -31,7 +39,8 @@ public class DexCraftFiles
   /** Shortcut destination to Default User's Desktop. */
   public static File shortcutDefaultDesktop = new File ("C:/Users/Default/Desktop/DexCraft Launcher.lnk");
 
-  //******************************Lockers and checkers**********************************************//
+
+  //******************************Lockers and checkers*************************************************//
 
   /** File which identifies if the program is running as Administrator. */
   public static File adminCheck = new File ("C:/admin.dc");
@@ -49,18 +58,19 @@ public class DexCraftFiles
   /** File used to identify if Background Services is present. **/
   public static File integrityCheckDCBS = new File (launcherFolder + "/DexCraftBackgroundServices.jar");
   /** File used to identify if DexCraft Factions Client is present. **/
-  public static File integrityCheckDC = new File (launcherFolder + "/dc/.minecraft/config");
+  public static File integrityCheckDC = new File (runtimeFolder + "/dc.exe");
   /** File used to identify if DexCraft Pixelmon is present. **/
-  public static File integrityCheckDCPX = new File (launcherFolder + "/dcpx/.minecraft/config");
+  public static File integrityCheckDCPX = new File (runtimeFolder + "/dcpx.exe");
   /** File used to identify if DexCraft Vanilla is present. **/
-  public static File integrityCheckDCVN = new File (launcherFolder + "/dcvn/.minecraft/config");
+  public static File integrityCheckDCVN = new File (runtimeFolder + "/dcvn.exe");
   /** File used to identify if DexCraft Backup is present. **/
-  public static File integrityCheckDCB = new File (launcherFolder + "/dcb/.minecraft/config");
+  public static File integrityCheckDCB = new File (runtimeFolder + "/dcb.exe");
 
   /**
    * The temporary file downloaded only for connection speed tests.
    */
   public static File downloadTestFile = new File(tempFolder + "/10M.iso");
+
 
   //*****************************************Launcher main resources folders and files***********************//
 
@@ -70,6 +80,7 @@ public class DexCraftFiles
   public static File resZip = new File (tempFolder + "/resources.zip");
   /** JRE update downloaded file. **/
   public static File updateJREZip = new File (tempFolder + "/jre.zip");
+
 
   //*****************************************Game Client resources folders and files***********************//
 
@@ -84,6 +95,7 @@ public class DexCraftFiles
   /** DexCraft Beta Game Client resource directory. **/
   public static File srcDCB = new File(srcFolder + "/dcb");
 
+
   //*****************************************Game Client provisioned zip files***********************//
 
   /** Factions Game Client downloaded install file. **/
@@ -95,6 +107,7 @@ public class DexCraftFiles
   /** Beta Game Client downloaded install file. **/
   public static File updateDCBZip = new File (tempFolder + "/dclclientdcb.zip");
 
+
   //*****************************************Game Patch provisioned zip files***********************//
 
   /** Factions Game Patch downloaded install file. **/
@@ -105,6 +118,7 @@ public class DexCraftFiles
   public static File updateDCVNPatchZip = new File (tempFolder + "/patchdcvn.zip");
   /** Beta Game Client downloaded install file. **/
   public static File updateDCBPatchZip = new File (tempFolder + "/patchdcb.zip");
+
 
   //******************************************CoreFile assets***********************************************//
 
@@ -123,4 +137,15 @@ public class DexCraftFiles
   public static File updateDCBSZip = new File (tempFolder + "/dcbs.zip");
   /** Init's version update downloaded package to install. */
   public static File updateInitZip = new File (tempFolder + "/init.zip");
+
+
+  //******************************************Miscelanneous***********************************************//
+
+  /** This is a matrix file of the Sync Properties file,
+   * which store all backups timestamps in local client. */
+  public static File syncPropsRoot = new File(launcherFolder + "/syncproperties.json");
+
+  /** Folder containing all ftp temporary data. */
+  public static File tempFTPFolder = new File(tempFolder + "/ftp");
+
 }

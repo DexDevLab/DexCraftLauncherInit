@@ -151,6 +151,7 @@ public class Download
    */
   public void setDownloadSpeed(String value) { this.downloadSpeed = value; }
 
+
   /**
    * Method for downloading the CoreFile.
    */
@@ -252,6 +253,7 @@ public class Download
       alerts.exceptionHandler(ex, "EXCEÇÃO EM Download.downloadWithProgress(String, File)");
     }
   }
+
 
   /**
    * Updates the download progress using proper byte and time measures.

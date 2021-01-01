@@ -1,11 +1,17 @@
 package net.dex.dexcraft.launcher.init.services;
 
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import static net.dex.dexcraft.commons.Commons.alerts;
+import static net.dex.dexcraft.commons.Commons.logger;
 import net.dex.dexcraft.commons.check.AdminExecution;
 import net.dex.dexcraft.commons.check.PreventSecondInstance;
 import net.dex.dexcraft.commons.check.ProvisionedPackage;
 import net.dex.dexcraft.commons.check.SystemRequirements;
+import net.dex.dexcraft.commons.dao.JsonDAO;
 import net.dex.dexcraft.commons.dto.SessionDTO;
 import net.dex.dexcraft.commons.dto.SystemDTO;
 import net.dex.dexcraft.commons.dto.UrlsDTO;
@@ -15,9 +21,8 @@ import net.dex.dexcraft.commons.tools.DexUI;
 import net.dex.dexcraft.commons.tools.Download;
 import net.dex.dexcraft.commons.tools.FileIO;
 import net.dex.dexcraft.commons.tools.Install;
+import net.dex.dexcraft.commons.tools.ZipUtils;
 import net.dex.dexcraft.launcher.init.Init;
-import static net.dex.dexcraft.launcher.init.Init.alerts;
-import static net.dex.dexcraft.launcher.init.Init.logger;
 
 
 /**
@@ -29,6 +34,10 @@ public class Validate
   public static boolean isPingServiceOnLoginRunning = false;
   public static boolean isPingServiceOnMainWindowRunning = false;
   public static boolean isJavaVerified = false;
+
+  private static String currentGame = "";
+  private static String GAME_CACHE_PASSWORD = "DEXCRAFTCACHE";
+  private static List<String> taskList = new ArrayList<>();
 
   /**
   * Validates Launcher instance, preventing users from<br>
@@ -159,225 +168,9 @@ public class Validate
     {
       if ( (ProvisionedPackage.isOutdated(componentName)) || (!ProvisionedPackage.isInstalled(componentName)) )
       {
-        if (componentName.contains("Game"))
-        {
-          ui.resetProgress();
-        }
-        Init.changeStatus(ui, "Baixando " + programName + "...", "");
-        Download downloadComponent = new Download();
-        Thread threadDownloadComponent = new Thread(()->
-        {
-          switch (componentName)
-          {
-            case "Resources":
-              downloadComponent.zipResource(UrlsDTO.getLauncherResourceFile(), DexCraftFiles.tempFolder, DexCraftFiles.resZip);
-              break;
-            case "Init":
-              downloadComponent.zipResource(UrlsDTO.getInitUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateInitZip);
-              break;
-            case "Client":
-              downloadComponent.zipResource(UrlsDTO.getDCLUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateLauncherZip);
-              break;
-            case "DCBS":
-              downloadComponent.zipResource(UrlsDTO.getDCBSUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBSZip);
-              break;
-            case "DCGame":
-              downloadComponent.zipResource(UrlsDTO.getClientDC(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCZip);
-              break;
-            case "DCPXGame":
-              downloadComponent.zipResource(UrlsDTO.getClientDCPX(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPXZip);
-              break;
-            case "DCVNGame":
-              downloadComponent.zipResource(UrlsDTO.getClientDCVN(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCVNZip);
-              break;
-            case "DCBGame":
-              downloadComponent.zipResource(UrlsDTO.getClientDCB(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBZip);
-              break;
-            case "DCPatchGame":
-              downloadComponent.zipResource(UrlsDTO.getPatchDC(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPatchZip);
-              break;
-            case "DCPXPatchGame":
-              downloadComponent.zipResource(UrlsDTO.getPatchDCPX(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPXPatchZip);
-              break;
-            case "DCVNPatchGame":
-              downloadComponent.zipResource(UrlsDTO.getPatchDCVN(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCVNPatchZip);
-              break;
-            case "DCBPatchGame":
-              downloadComponent.zipResource(UrlsDTO.getPatchDCB(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBPatchZip);
-              break;
-            default:
-              break;
-          }
-        });
-        threadDownloadComponent.start();
-        while(threadDownloadComponent.isAlive())
-        {
-          try
-          {
-            Thread.sleep(1100);
-          }
-          catch (InterruptedException ex)
-          {
-            logger.log(ex, "EXCEÇÃO em Validate.launcher()");
-          }
-          logger.log("INFO", downloadComponent.getTimeEstimatedMsg());
-          if (componentName.contains("Game"))
-          {
-            Init.changeStatus(ui, "Baixando " + programName + "... "
-                    , downloadComponent.getTimeEstimatedMsg() );
-            ui.changeProgress(true, Double.parseDouble(downloadComponent.getProgressPercent().replace(",",".")), 35);
-          }
-          else
-          {
-            Init.changeStatus(ui, "Baixando " + programName + "..."
-                    + downloadComponent.getProgressPercent() + "% concluído", "");
-          }
-        }
-        if (componentName.contains("Game"))
-        {
-          Init.changeStatus(ui, "Baixando " + programName + "...", "100% concluído");
-          ui.changeProgress(true, 100, 35);
-          ui.resetProgress();
-        }
-        else
-        {
-          Init.changeStatus(ui, "Baixando " + programName + "..." + "100% concluído", "");
-          ui.changeProgress(true, uiProgressValue, 30);
-        }
-        Init.changeStatus(ui, "Instalando " + programName + "... ", "");
-        Install installComponent = new Install();
-        Thread threadInstallComponent = new Thread(()->
-        {
-          switch (componentName)
-          {
-            case "Resources":
-              installComponent.downloadedZipResource(DexCraftFiles.resZip, DexCraftFiles.resFolder);
-              break;
-            case "Init":
-              installComponent.downloadedZipResource(DexCraftFiles.updateInitZip, DexCraftFiles.launcherFolder);
-              break;
-            case "Client":
-              installComponent.downloadedZipResource(DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCBS":
-              installComponent.downloadedZipResource(DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCGame":
-              installComponent.downloadedZipResource(DexCraftFiles.updateDCZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCPXGame":
-              installComponent.downloadedZipResource(DexCraftFiles.updateDCPXZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCVNGame":
-              installComponent.downloadedZipResource(DexCraftFiles.updateDCVNZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCBGame":
-              installComponent.downloadedZipResource(DexCraftFiles.updateDCBZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCPatchGame":
-              installComponent.downloadedZipPatch(DexCraftFiles.updateDCPatchZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCPXPatchGame":
-              installComponent.downloadedZipPatch(DexCraftFiles.updateDCPXPatchZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCVNPatchGame":
-              installComponent.downloadedZipPatch(DexCraftFiles.updateDCVNPatchZip, DexCraftFiles.launcherFolder);
-              break;
-            case "DCBPatchGame":
-              installComponent.downloadedZipPatch(DexCraftFiles.updateDCBPatchZip, DexCraftFiles.launcherFolder);
-              break;
-            default:
-              break;
-          }
-        });
-        threadInstallComponent.start();
-        String checkFile = " ";
-        while(threadInstallComponent.isAlive())
-        {
-          if (!(installComponent.getInstallingFileName()).equals(""))
-          {
-            if (!installComponent.getInstallingFileName().equals(checkFile))
-            {
-              if (componentName.contains("Game"))
-              {
-                Init.changeStatus(ui, "Instalando " + programName + "... "
-                        , installComponent.getInstallingFileName() + ", "
-                        + installComponent.getInstallingFilePosition() + " / "
-                        + installComponent.getTotalFilesQuantity());
-                ui.changeProgress(true, Double.parseDouble(installComponent.getProgressPercent().replace(",",".")), 35);
-              }
-              else
-              {
-                Init.changeStatus(ui, "Instalando " + programName + "... "
-                        + installComponent.getInstallingFilePosition() + " / "
-                        + installComponent.getTotalFilesQuantity(), "");
-              }
-              checkFile = installComponent.getInstallingFileName();
-            }
-          }
-          try
-          {
-            Thread.sleep(10);
-          }
-          catch (InterruptedException ex)
-          {
-            logger.log(ex,"EXCEÇÃO em Validate.provisionedComponent()");
-          }
-        }
-        if (componentName.contains("Game"))
-        {
-          Init.changeStatus(ui, "Instalando " + programName + "... "
-                        , installComponent.getTotalFilesQuantity() + " / "
-                        + installComponent.getTotalFilesQuantity());
-          ui.changeProgress(true, 100, 35);
-          ui.resetProgress();
-        }
-        else
-        {
-          Init.changeStatus(ui, "Instalando " + programName + "... "
-                  + installComponent.getTotalFilesQuantity() + " / "
-                  + installComponent.getTotalFilesQuantity() , "");
-        }
-        switch (componentName)
-        {
-          case "Resources":
-            break;
-          case "Init":
-            VersionsDTO.setDexCraftLauncherInitVersion(VersionsDTO.getProvisionedInitVersion());
-            break;
-          case "Client":
-            VersionsDTO.setDexCraftLauncherClientVersion(VersionsDTO.getProvisionedClientVersion());
-            break;
-          case "DCBS":
-            VersionsDTO.setDexCraftBackgroundServicesVersion(VersionsDTO.getProvisionedBackgroundServicesVersion());
-            break;
-          case "DCGame":
-            // Game Clients don't need versioning
-            break;
-          case "DCPXGame":
-            // Game Clients don't need versioning
-            break;
-          case "DCVNGame":
-            // Game Clients don't need versioning
-            break;
-          case "DCBGame":
-            // Game Clients don't need versioning
-            break;
-          case "DCPatchGame":
-            VersionsDTO.setDexCraftFactionsPatchVersion(VersionsDTO.getProvisionedFactionsPatchVersion());
-            break;
-          case "DCPXPatchGame":
-            VersionsDTO.setDexCraftPixelmonPatchVersion(VersionsDTO.getProvisionedPixelmonPatchVersion());
-            break;
-          case "DCVNPatchGame":
-            VersionsDTO.setDexCraftVanillaPatchVersion(VersionsDTO.getProvisionedVanillaPatchVersion());
-            break;
-          case "DCBPatchGame":
-            VersionsDTO.setDexCraftBetaPatchVersion(VersionsDTO.getProvisionedBetaPatchVersion());
-            break;
-          default:
-            break;
-        }
+        downloadComponent(ui, uiProgressValue, componentName, programName);
+        installComponent(ui, componentName, programName);
+        updateVersionValues(componentName);
       }
     }
     else
@@ -389,6 +182,445 @@ public class Validate
     }
     return true;
   }
+
+
+  /**
+   * Downloads the provisioned component.
+   * @param ui the User Interface instance
+   * @param uiProgressValue the progress which represents this step
+   * @param componentName the name of the component to be downloaded
+   * @param programName the name of the package (external name used on user interface)
+   */
+  private static void downloadComponent(DexUI ui, int uiProgressValue, String componentName, String programName)
+  {
+    if (componentName.contains("Game"))
+    {
+      ui.resetProgress();
+    }
+    Init.changeStatus(ui, "Baixando " + programName + "...", "");
+    Download downloadComponent = new Download();
+    Thread threadDownloadComponent = new Thread(()->
+    {
+      switch (componentName)
+      {
+        case "Resources":
+          downloadComponent.zipResource(UrlsDTO.getLauncherResourceFile(), DexCraftFiles.tempFolder, DexCraftFiles.resZip);
+          break;
+        case "Init":
+          downloadComponent.zipResource(UrlsDTO.getInitUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateInitZip);
+          break;
+        case "Client":
+          downloadComponent.zipResource(UrlsDTO.getDCLUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateLauncherZip);
+          break;
+        case "DCBS":
+          downloadComponent.zipResource(UrlsDTO.getDCBSUpdate(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBSZip);
+          break;
+        case "DCGame":
+          downloadComponent.zipResource(UrlsDTO.getClientDC(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCZip);
+          break;
+        case "DCPXGame":
+          downloadComponent.zipResource(UrlsDTO.getClientDCPX(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPXZip);
+          break;
+        case "DCVNGame":
+          downloadComponent.zipResource(UrlsDTO.getClientDCVN(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCVNZip);
+          break;
+        case "DCBGame":
+          downloadComponent.zipResource(UrlsDTO.getClientDCB(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBZip);
+          break;
+        case "DCPatchGame":
+          downloadComponent.zipResource(UrlsDTO.getPatchDC(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPatchZip);
+          break;
+        case "DCPXPatchGame":
+          downloadComponent.zipResource(UrlsDTO.getPatchDCPX(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCPXPatchZip);
+          break;
+        case "DCVNPatchGame":
+          downloadComponent.zipResource(UrlsDTO.getPatchDCVN(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCVNPatchZip);
+          break;
+        case "DCBPatchGame":
+          downloadComponent.zipResource(UrlsDTO.getPatchDCB(), DexCraftFiles.tempFolder, DexCraftFiles.updateDCBPatchZip);
+          break;
+        default:
+          break;
+      }
+    });
+    threadDownloadComponent.start();
+    while(threadDownloadComponent.isAlive())
+    {
+      try
+      {
+        Thread.sleep(1100);
+      }
+      catch (InterruptedException ex)
+      {
+        logger.log(ex, "EXCEÇÃO em Validate.launcher()");
+      }
+      logger.log("INFO", downloadComponent.getTimeEstimatedMsg());
+      if (componentName.contains("Game"))
+      {
+        Init.changeStatus(ui, "Baixando " + programName + "... "
+                , downloadComponent.getTimeEstimatedMsg() );
+        ui.changeProgress(true, Double.parseDouble(downloadComponent.getProgressPercent().replace(",",".")), 35);
+      }
+      else
+      {
+        Init.changeStatus(ui, "Baixando " + programName + "..."
+                + downloadComponent.getProgressPercent() + "% concluído", "");
+      }
+    }
+    if (componentName.contains("Game"))
+    {
+      Init.changeStatus(ui, "Baixando " + programName + "...", "100% concluído");
+      ui.changeProgress(true, 100, 35);
+      ui.resetProgress();
+    }
+    else
+    {
+      Init.changeStatus(ui, "Baixando " + programName + "..." + "100% concluído", "");
+      ui.changeProgress(true, uiProgressValue, 30);
+    }
+  }
+
+  /**
+   * Installs the provisioned component.
+   * @param ui the User Interface instance
+   * @param uiProgressValue the progress which represents this step
+   * @param componentName the name of the component to be installed
+   * @param programName the name of the package (external name used on user interface)
+   */
+  private static void installComponent(DexUI ui, String componentName, String programName)
+  {
+    Init.changeStatus(ui, "Instalando " + programName + "... ", "");
+    Install installComponent = new Install();
+    Thread threadInstallComponent = new Thread(()->
+    {
+      switch (componentName)
+      {
+        case "Resources":
+          installComponent.downloadedZipResource(DexCraftFiles.resZip, DexCraftFiles.resFolder);
+          break;
+        case "Init":
+          installComponent.downloadedZipResource(DexCraftFiles.updateInitZip, DexCraftFiles.launcherFolder);
+          break;
+        case "Client":
+          installComponent.downloadedZipResource(DexCraftFiles.updateLauncherZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCBS":
+          installComponent.downloadedZipResource(DexCraftFiles.updateDCBSZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCGame":
+          installComponent.downloadedZipResource(DexCraftFiles.updateDCZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCPXGame":
+          installComponent.downloadedZipResource(DexCraftFiles.updateDCPXZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCVNGame":
+          installComponent.downloadedZipResource(DexCraftFiles.updateDCVNZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCBGame":
+          installComponent.downloadedZipResource(DexCraftFiles.updateDCBZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCPatchGame":
+          installComponent.downloadedZipPatch(DexCraftFiles.updateDCPatchZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCPXPatchGame":
+          installComponent.downloadedZipPatch(DexCraftFiles.updateDCPXPatchZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCVNPatchGame":
+          installComponent.downloadedZipPatch(DexCraftFiles.updateDCVNPatchZip, DexCraftFiles.launcherFolder);
+          break;
+        case "DCBPatchGame":
+          installComponent.downloadedZipPatch(DexCraftFiles.updateDCBPatchZip, DexCraftFiles.launcherFolder);
+          break;
+        default:
+          break;
+      }
+    });
+    threadInstallComponent.start();
+    String checkFile = " ";
+    while(threadInstallComponent.isAlive())
+    {
+      if (!(installComponent.getInstallingFileName()).equals(""))
+      {
+        if (!installComponent.getInstallingFileName().equals(checkFile))
+        {
+          if (componentName.contains("Game"))
+          {
+            Init.changeStatus(ui, "Instalando " + programName + "... "
+                    , installComponent.getInstallingFileName() + ", "
+                    + installComponent.getInstallingFilePosition() + " / "
+                    + installComponent.getTotalFilesQuantity());
+            ui.changeProgress(true, Double.parseDouble(installComponent.getProgressPercent().replace(",",".")), 35);
+          }
+          else
+          {
+            Init.changeStatus(ui, "Instalando " + programName + "... "
+                    + installComponent.getInstallingFilePosition() + " / "
+                    + installComponent.getTotalFilesQuantity(), "");
+          }
+          checkFile = installComponent.getInstallingFileName();
+        }
+      }
+      try
+      {
+        Thread.sleep(10);
+      }
+      catch (InterruptedException ex)
+      {
+        logger.log(ex,"EXCEÇÃO em Validate.provisionedComponent()");
+      }
+    }
+    if (componentName.contains("Game"))
+    {
+      Init.changeStatus(ui, "Instalando " + programName + "... "
+                    , installComponent.getTotalFilesQuantity() + " / "
+                    + installComponent.getTotalFilesQuantity());
+      ui.changeProgress(true, 100, 35);
+      ui.resetProgress();
+    }
+    else
+    {
+      Init.changeStatus(ui, "Instalando " + programName + "... "
+              + installComponent.getTotalFilesQuantity() + " / "
+              + installComponent.getTotalFilesQuantity() , "");
+    }
+  }
+
+  /**
+   * Change version assets to finalize component update
+   * @param componentName the component name that was updated
+   */
+  private static void updateVersionValues(String componentName)
+  {
+    JsonDAO json = new JsonDAO();
+    File timestampFile = new File(DexCraftFiles.gameCache + "/" + SessionDTO.getSessionUser() + "/syncproperties.json");
+    switch (componentName)
+    {
+      case "Resources":
+        break;
+      case "Init":
+        VersionsDTO.setDexCraftLauncherInitVersion(VersionsDTO.getProvisionedInitVersion());
+        break;
+      case "Client":
+        VersionsDTO.setDexCraftLauncherClientVersion(VersionsDTO.getProvisionedClientVersion());
+        break;
+      case "DCBS":
+        VersionsDTO.setDexCraftBackgroundServicesVersion(VersionsDTO.getProvisionedBackgroundServicesVersion());
+        break;
+      case "DCGame":
+        // Game Clients don't need versioning
+        // But needs to change the backup value so it can be downloaded again.
+        if(timestampFile.exists())
+        {
+          json.editValue(timestampFile, "DC", "BackupTimestamp", "v0");
+        }
+        VersionsDTO.setDexCraftFactionsPatchVersion("v0");
+        break;
+      case "DCPXGame":
+        // Game Clients don't need versioning
+        // But needs to change the backup value so it can be downloaded again.
+        if(timestampFile.exists())
+        {
+          json.editValue(timestampFile, "DCPX", "BackupTimestamp", "v0");
+        }
+        VersionsDTO.setDexCraftPixelmonPatchVersion("v0");
+        break;
+      case "DCVNGame":
+        // Game Clients don't need versioning
+        // But needs to change the backup value so it can be downloaded again.
+        if(timestampFile.exists())
+        {
+          json.editValue(timestampFile, "DCVN", "BackupTimestamp", "v0");
+        }
+        VersionsDTO.setDexCraftVanillaPatchVersion("v0");
+        break;
+      case "DCBGame":
+        // Game Clients don't need versioning
+        // But needs to change the backup value so it can be downloaded again.
+        if(timestampFile.exists())
+        {
+          json.editValue(timestampFile, "DCB", "BackupTimestamp", "v0");
+        }
+        VersionsDTO.setDexCraftBetaPatchVersion("v0");
+        break;
+      case "DCPatchGame":
+        VersionsDTO.setDexCraftFactionsPatchVersion(VersionsDTO.getProvisionedFactionsPatchVersion());
+        break;
+      case "DCPXPatchGame":
+        VersionsDTO.setDexCraftPixelmonPatchVersion(VersionsDTO.getProvisionedPixelmonPatchVersion());
+        break;
+      case "DCVNPatchGame":
+        VersionsDTO.setDexCraftVanillaPatchVersion(VersionsDTO.getProvisionedVanillaPatchVersion());
+        break;
+      case "DCBPatchGame":
+        VersionsDTO.setDexCraftBetaPatchVersion(VersionsDTO.getProvisionedBetaPatchVersion());
+        break;
+      default:
+        break;
+    }
+  }
+
+
+  /**
+   * Validates and prepares the game session.
+   * @param ui the User Interface instance
+   * @param currentUser the user currently logged in
+   */
+  public static void gameCache(DexUI ui, String currentUser)
+  {
+    switch (SessionDTO.getLastServer())
+    {
+      case "0":
+        currentGame = "dc";
+        break;
+      case "1":
+        currentGame = "dcpx";
+        break;
+      case "2":
+        currentGame = "dcvn";
+        break;
+      case "3":
+        currentGame = "dcb";
+        break;
+      default:
+        break;
+    }
+    String oldUser = SessionDTO.getSessionUser();
+    Init.changeStatus(ui, "Preparando perfil. Aguarde...", "");
+    if ( (!oldUser.equals(currentUser)) && (!oldUser.equals("")) )
+    {
+      logger.log("INFO", "A conta logada atualmente "
+             + "é diferente daquela da última sessão. Salvando "
+             + "os dados atuais em Cache...");
+      FileIO fio = new FileIO();
+      File gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + oldUser + "/" + currentGame);
+      if (gameCache.exists())
+      {
+        fio.excluir(gameCache, false);
+      }
+      gameCache.mkdirs();
+      File syncProps = new File(DexCraftFiles.gameCache.toString() + "/" + oldUser + "/syncproperties.json");
+      if(!syncProps.exists())
+      {
+        fio.copiar(DexCraftFiles.syncPropsRoot, syncProps);
+      }
+      Thread backupTask = new Thread(()->
+      {
+        backupCache(ui, oldUser, currentGame);
+      });
+      backupTask.start();
+      while (backupTask.isAlive())
+      {
+        Init.changeStatus(ui, "Preparando perfil. Aguarde...", "");
+        try
+        {
+          Thread.sleep(500);
+        }
+        catch (InterruptedException ex)
+        {
+          logger.log(ex,"EXCEÇÃO em Validate.gameCache(DexUI, String)");
+        }
+      }
+      gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/" + currentGame + ".7z");
+      if (gameCache.exists())
+      {
+        Thread restoreTask = new Thread(()->
+        {
+          restoreCache(currentUser, currentGame);
+        });
+        restoreTask.start();
+        String statusMsg = "";
+        while (restoreTask.isAlive())
+        {
+          if(!ZipUtils.statusMessage.equals(statusMsg))
+          {
+            Init.changeStatus(ui, ZipUtils.statusMessage, "");
+          }
+          try
+          {
+            Thread.sleep(100);
+          }
+          catch (InterruptedException ex)
+          {
+            logger.log(ex,"EXCEÇÃO em Validate.gameCache(DexUI, String)");
+          }
+          statusMsg = ZipUtils.statusMessage;
+        }
+      }
+    }
+    else
+    {
+      File gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/" + currentGame);
+      if (!gameCache.exists())
+      {
+        logger.log("INFO","Diretório de cache de jogo não encontrado. Gerando um novo...");
+        gameCache.mkdirs();
+      }
+      File syncProps = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/syncproperties.json");
+      if(!syncProps.exists())
+      {
+        FileIO fio = new FileIO();
+        logger.log("INFO","SyncProps não encontrado. Gerando um novo...");
+        fio.copiar(DexCraftFiles.syncPropsRoot, syncProps);
+      }
+    }
+    logger.log("INFO","Cache validado.");
+  }
+
+  /**
+   * Performs the backup preparation to change the logged account.
+   * @param ui the User Interface instance
+   * @param user the username needed to backup
+   * @param game the client game that need to be backuped
+   */
+  public static void backupCache(DexUI ui, String user, String game)
+  {
+    taskList = SystemDTO.getDCLBkpDirectivesFull();
+    FileIO fio = new FileIO();
+    taskList.forEach((item)->
+    {
+      if (item.lastIndexOf(game) != -1)
+      {
+        String fileSrc = item.replace("\"", "");
+        Init.changeStatus(ui, "Preparando perfil... " + (taskList.indexOf(item)+1) + " / " + taskList.size(), "");
+        File destination = new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + fileSrc);
+        File src = new File(DexCraftFiles.launcherFolder.toString() + "/" + fileSrc);
+        if (src.exists())
+        {
+          fio.copiar(src, destination);
+          fio.excluir(src, false);
+        }
+      }
+    });
+    Init.changeStatus(ui, "Preparando perfil... " + taskList.size() + " / " + taskList.size(), "");
+    ZipUtils.compressWithPassword(new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game), GAME_CACHE_PASSWORD);
+    fio.excluir(new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game), true);
+  }
+
+
+  /**
+   * Performs the account restoration from changed logged account.
+   * @param user the username that needs to have their data restored
+   * @param game the game client data
+   */
+  public static void restoreCache(String user, String game)
+  {
+    File zipDir = new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game);
+    File zipFile = new File(zipDir.toString() + ".7z");
+    if (zipFile.exists())
+    {
+      ZipUtils.extractWithPassword(game, zipDir, GAME_CACHE_PASSWORD);
+      FileIO fio = new FileIO();
+      fio.copiar(zipDir, new File(DexCraftFiles.launcherFolder + "/" + game));
+      fio.excluir(zipDir, true);
+      fio.excluir(zipFile, false);
+    }
+    else
+    {
+      logger.log("***ERRO***", "EXCEÇÃO em Validate.restoreCache() - ARQUIVO DE BACKUP NÃO ENCONTRADO." );
+      alerts.tryAgain();
+    }
+  }
+
 
   /**
    * Validates JRE Version.

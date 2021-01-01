@@ -272,11 +272,42 @@ Gladly back to Github!
 		* Created method to download patch file and verify installation aditional rules (like special file exclusions).
 	* Validate.java:
 		* Now organized as a Service.
-	* DexCraft Launcher Init:
+* DexCraft Launcher Init:
 	* CSS - fxmlFont1.css:
 		* Removed translate-y parameter.
 	* FXML - Preloader.fxml:
 		* Reduced scene size.
 	* Init.java:
 		* Changed changeStatus method to suit better to new Validate functions related to interactions with other scenes.
-	  
+## v2.1.3-210101-602
+* DexCraft Commons:
+	* JsonDAO.java:
+		* Changed log format to match correctly to the logger class requirements.
+	* SqlDAO.java:
+		* Removed the timestamp value of the table. I got the conclusion that having the backup timestamp in the database table is a wrong idea.
+	* SystemDTO.java:
+		* Added the GET, SET and PARSE methods to the backup directives.
+	* DexCraftFiles.java:
+		* Added local session cache folder variable.
+		* Added binaries folder variable which will contain 3rd party programs
+		* Added the runtime folder variable which contain files needed to the internal launcher (Shiginima Launcher)
+		* Changed the variable which validates DexCraft Factions Client to use the files in runtime folder as reference.
+		* Changed the variable which validates DexCraft Pixelmon Client to use the files in runtime folder as reference.
+		* Changed the variable which validates DexCraft Vanilla Client to use the files in runtime folder as reference.
+		* Changed the variable which validates DexCraft Beta Client to use the files in runtime folder as reference.
+		* Added a variable of the syncproperties.json, a special file which will contain all the game clients timestamps.
+		* Added a variable to the temporary folder for ftp syncronization.
+	* DexUI.java:
+		* Reduced animation latency of the progress bar.
+		* Added method to retrieve button.
+	* FileIO.java:
+		* Changed algorithm logic to determine file presence in a better precise way.
+	* FtpDAO.java:
+		* Name changed to FtpUtils to reflect its practical use.
+	* FtpUtils.java:
+		* Created.   
+	* Install.java:
+		* Changed patching process to fix problems on finding the file to be manipulated.
+* DexCraft Launcher Init Services:
+	 * Validate.java:
+		* Code refactoring for better readability.

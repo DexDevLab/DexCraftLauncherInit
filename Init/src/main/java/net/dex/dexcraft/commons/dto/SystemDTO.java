@@ -1,6 +1,8 @@
 package net.dex.dexcraft.commons.dto;
 
 
+import java.util.ArrayList;
+import java.util.List;
 import static net.dex.dexcraft.commons.Commons.alerts;
 import net.dex.dexcraft.commons.dao.JsonDAO;
 import net.dex.dexcraft.commons.tools.DexCraftFiles;
@@ -22,6 +24,10 @@ public class SystemDTO
   private static String javaVersion = "null";
   private static String minimumMbpsUploadSpeed = "0";
   private static String speedTestFileURL = "null";
+
+  //******************Backup System assets *************************//
+  private static List<String> dclBkpDirectivesFull = new ArrayList<>();
+  private static List<String> dclBkpDirectivesPartial = new ArrayList<>();
 
   //***************************************PARSERS*******************************//
 
@@ -78,6 +84,26 @@ public class SystemDTO
   {
     speedTestFileURL = value;
   }
+
+  /**
+   * PARSE full backup list from JSON file.
+   * @param value the JSON read output.
+   */
+  private static void parseDCLBkpDirectivesFull(List<String> value)
+  {
+    dclBkpDirectivesFull = value;
+  }
+
+  /**
+   * PARSE partial backup list from JSON file.
+   * @param value the JSON read output.
+   */
+  private static void parseDCLBkpDirectivesPartial(List<String> value)
+  {
+    dclBkpDirectivesPartial = value;
+  }
+
+
 
   //*******************************************GETTERS*******************************//
 
@@ -136,6 +162,24 @@ public class SystemDTO
     return speedTestFileURL;
   }
 
+  /**
+   * GET full backup list from DTO.
+   * @return the list
+   */
+  public static List<String> getDCLBkpDirectivesFull()
+  {
+    return dclBkpDirectivesFull;
+  }
+
+  /**
+   * GET partial backup list from DTO.
+   * @return the list
+   */
+  public static List<String> getDCLBkpDirectivesPartial()
+  {
+    return dclBkpDirectivesPartial;
+  }
+
   //*******************************************SETTERS*******************************//
   // System Requirements variables don't need SETTER methods since methods since
   //  the data into the CoreFile won't be changed, and the Launcher
@@ -161,7 +205,9 @@ public class SystemDTO
       parseJavaVersion(json.readValue(DexCraftFiles.coreFile, "Installer", "JavaVersion"));
       parseMinimumMbpsUploadSpeed(json.readValue(DexCraftFiles.coreFile, "BackupService", "MinimumMbpsUploadSpeed"));
       parseSpeedTestFileURL(json.readValue(DexCraftFiles.coreFile, "BackupService", "SpeedTestFileURL"));
-      
+      parseDCLBkpDirectivesFull(json.readList(DexCraftFiles.coreFile, "BackupService", "DCLBkpDirectivesFull"));
+      parseDCLBkpDirectivesPartial(json.readList(DexCraftFiles.coreFile, "BackupService", "DCLBkpDirectivesPartial"));
+
       System.out.println("Assets de sistema carregados.");
     }
   }

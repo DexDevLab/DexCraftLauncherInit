@@ -182,13 +182,15 @@ public class Install
     exclusions = json.readList(patchFile, "PatchingTasks", "Exclusions");
     exclusions.forEach((item)->
     {
-      if (!new File(item).exists())
+      item = item.replace("\"", "");
+      File fil = new File(item);
+      if (!fil.exists())
       {
         logger.log("INFO", "Arquivo / Diretório " + item + " não foi encontrado.");
       }
       else
       {
-        FileUtils.deleteQuietly(new File(item));
+        FileUtils.deleteQuietly(fil);
         logger.log("INFO", "Arquivo / Diretório " + item + " excluído com sucesso.");
       }
     });

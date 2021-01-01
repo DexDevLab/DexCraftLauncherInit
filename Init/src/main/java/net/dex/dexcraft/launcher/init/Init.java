@@ -36,7 +36,7 @@ import net.dex.dexcraft.launcher.init.services.Validate;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.1.3-201225-601
+  * @version v2.1.3-210101-602
   *
   * Preloader Class with splash screen.
   */

@@ -170,6 +170,15 @@ public class DexUI
   }
 
   /**
+   * Retrieve the UI's button.
+   * @return the button
+   */
+  public Button getMainButton()
+  {
+    return this.mainBt;
+  }
+
+  /**
    * Sets the image, changing it with an animation.
    * @param img the new image.
    */
@@ -403,7 +412,7 @@ public class DexUI
       // Time between progress bar changes. Increase
         // it to have a bigger gap between progress
         // transitions.
-      Thread.sleep(400);
+      Thread.sleep(250);
       double progressValue = 0;
       if (isValuePercent)
       {

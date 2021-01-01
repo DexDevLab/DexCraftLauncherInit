@@ -136,7 +136,7 @@ public class JsonDAO
     }
     else
     {
-      logger.log("[***ERRO***]: ", "EXCEÇÃO em JSONUtility.readList(File, String, String, String) - OBJETO NÃO É UM ARRAY");
+      logger.log("***ERRO***", "EXCEÇÃO em JSONUtility.readList(File, String, String, String) - OBJETO NÃO É UM ARRAY");
       alerts.tryAgain();
     }
     return output;
@@ -163,7 +163,7 @@ public class JsonDAO
     }
     else
     {
-      logger.log("[***ERRO***]: ", "EXCEÇÃO em JSONUtility.readValue(File, String, String, String) - OBJETO NÃO É UMA STRING");
+      logger.log("***ERRO***", "EXCEÇÃO em JSONUtility.readValue(File, String, String, String) - OBJETO NÃO É UMA STRING");
       alerts.tryAgain();
     }
     return output;
