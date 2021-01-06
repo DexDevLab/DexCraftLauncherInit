@@ -344,3 +344,13 @@ Gladly back to Github!
 *DexCraft Commons:
 	* OfflineMode.java:
 		* Changed website test to DexCloud server address to better compatibility.
+## v2.2.2-210106-629
+*DexCraft Commons:
+	* OfflineMode.java:
+		* Changed connection test method (only for testing)
+	* Close.java:
+		* Changed exclusion method of cache files
+	* Connections.java:
+		* Exception of Connections.getPing() ignored
+		* Added different result in case of connection failure
+		* Changed behaviour of the Exception Handler Alert to perform program closing properly

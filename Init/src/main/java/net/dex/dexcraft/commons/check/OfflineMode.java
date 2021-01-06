@@ -1,13 +1,10 @@
 package net.dex.dexcraft.commons.check;
 
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import static net.dex.dexcraft.commons.Commons.alerts;
 import static net.dex.dexcraft.commons.Commons.logger;
 import net.dex.dexcraft.commons.dto.SessionDTO;
+import net.dex.dexcraft.commons.tools.Connections;
 
 
 /**
@@ -50,24 +47,35 @@ public class OfflineMode
    */
   private static void testConnection()
   {
-    try
+    Connections con = new Connections();
+    logger.log("INFO", "Testando conexão com a internet...");
+    String ping = con.getPing("www.google.com.br");
+    if (ping.equals("99999"))
     {
-      logger.log("INFO", "Testando conexão com a internet...");
-      URL url = new URL("http://8aff09b1b49c.sn.mynetname.net:5023");
-      URLConnection connection = url.openConnection();
-      connection.connect();
+      internetCheckException();
+    }
+    else
+    {
       logger.log("INFO", "Detectada conexão com a internet.");
     }
-    catch (MalformedURLException ex)
-    {
-      logger.log(ex,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
-      internetCheckException();
-    }
-    catch (IOException ex1)
-    {
-      logger.log(ex1,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
-      internetCheckException();
-    }
+//    try
+//    {
+//      logger.log("INFO", "Testando conexão com a internet...");
+//      URL url = new URL("http://8aff09b1b49c.sn.mynetname.net:5023");
+//      URLConnection connection = url.openConnection();
+//      connection.connect();
+//      logger.log("INFO", "Detectada conexão com a internet.");
+//    }
+//    catch (MalformedURLException ex)
+//    {
+//      logger.log(ex,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
+//      internetCheckException();
+//    }
+//    catch (IOException ex1)
+//    {
+//      logger.log(ex1,"EXCEÇÃO EM OfflineCheck.OfflineCheck()");
+//      internetCheckException();
+//    }
   }
 
   /**

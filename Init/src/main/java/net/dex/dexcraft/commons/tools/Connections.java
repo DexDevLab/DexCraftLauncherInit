@@ -181,7 +181,9 @@ public class Connections
     }
     catch (IOException ex)
     {
-      alerts.exceptionHandler(ex, "EXCEÇÃO EM Connections.getPing(String)");
+      // ignored
+      result = "99999";
+//      alerts.exceptionHandler(ex, "EXCEÇÃO EM Connections.getPing(String)");
     }
     return result;
   }
