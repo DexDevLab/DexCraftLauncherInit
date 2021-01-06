@@ -53,7 +53,7 @@ public class OfflineMode
     try
     {
       logger.log("INFO", "Testando conexão com a internet...");
-      URL url = new URL("http://www.google.com.br");
+      URL url = new URL("http://8aff09b1b49c.sn.mynetname.net:5023");
       URLConnection connection = url.openConnection();
       connection.connect();
       logger.log("INFO", "Detectada conexão com a internet.");

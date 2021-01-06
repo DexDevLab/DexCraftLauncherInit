@@ -313,8 +313,7 @@ Gladly back to Github!
 		* Code refactoring for better readability.
 ## v2.2.1-210105-628
 * DexCraft Commons:
-	* Since I'm not using it as a external library yet, I decided make some "cleaning", removing unecessairy classes
-I don't use in Init:
+	* Since I'm not using it as a external library yet, I decided make some "cleaning", removing unecessairy classes I don't use in Init:
 		* SqlDAO.java removed
 		* SqlDTO.java removed
 		* Crypto.java removed 
@@ -324,6 +323,8 @@ I don't use in Init:
 		* Fixed bug where starting Client at first time marks as another instance was running already.
 	* SystemRequirements.java:
 		* Fixed bug where Init couldn't load System Requirements since it was needing CoreFile in the constructor.
+	* SystemDTO.java:
+		* Added DexCraft Background Services assets variable.
 	* VersionsDTO.java:
 		* Fixed bug where the Client version wasn't updating.  
 	* Close.java:
@@ -338,4 +339,8 @@ I don't use in Init:
 		* Added URL parsing on initialization
 	* Launcher Init Services: 
 		* Validate.java:
-			* Removed non used methods. 
+			* Removed non used methods.
+## v2.2.1-210105-628
+*DexCraft Commons:
+	* OfflineMode.java:
+		* Changed website test to DexCloud server address to better compatibility.
