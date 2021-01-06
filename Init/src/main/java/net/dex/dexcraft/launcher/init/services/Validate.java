@@ -2,18 +2,13 @@ package net.dex.dexcraft.launcher.init.services;
 
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import static net.dex.dexcraft.commons.Commons.alerts;
 import static net.dex.dexcraft.commons.Commons.logger;
 import net.dex.dexcraft.commons.check.AdminExecution;
 import net.dex.dexcraft.commons.check.PreventSecondInstance;
 import net.dex.dexcraft.commons.check.ProvisionedPackage;
-import net.dex.dexcraft.commons.check.SystemRequirements;
 import net.dex.dexcraft.commons.dao.JsonDAO;
 import net.dex.dexcraft.commons.dto.SessionDTO;
-import net.dex.dexcraft.commons.dto.SystemDTO;
 import net.dex.dexcraft.commons.dto.UrlsDTO;
 import net.dex.dexcraft.commons.dto.VersionsDTO;
 import net.dex.dexcraft.commons.tools.DexCraftFiles;
@@ -21,7 +16,6 @@ import net.dex.dexcraft.commons.tools.DexUI;
 import net.dex.dexcraft.commons.tools.Download;
 import net.dex.dexcraft.commons.tools.FileIO;
 import net.dex.dexcraft.commons.tools.Install;
-import net.dex.dexcraft.commons.tools.ZipUtils;
 import net.dex.dexcraft.launcher.init.Init;
 
 
@@ -34,10 +28,6 @@ public class Validate
   public static boolean isPingServiceOnLoginRunning = false;
   public static boolean isPingServiceOnMainWindowRunning = false;
   public static boolean isJavaVerified = false;
-
-  private static String currentGame = "";
-  private static String GAME_CACHE_PASSWORD = "DEXCRAFTCACHE";
-  private static List<String> taskList = new ArrayList<>();
 
   /**
   * Validates Launcher instance, preventing users from<br>
@@ -458,282 +448,5 @@ public class Validate
         break;
     }
   }
-
-
-  /**
-   * Validates and prepares the game session.
-   * @param ui the User Interface instance
-   * @param currentUser the user currently logged in
-   */
-  public static void gameCache(DexUI ui, String currentUser)
-  {
-    switch (SessionDTO.getLastServer())
-    {
-      case "0":
-        currentGame = "dc";
-        break;
-      case "1":
-        currentGame = "dcpx";
-        break;
-      case "2":
-        currentGame = "dcvn";
-        break;
-      case "3":
-        currentGame = "dcb";
-        break;
-      default:
-        break;
-    }
-    String oldUser = SessionDTO.getSessionUser();
-    Init.changeStatus(ui, "Preparando perfil. Aguarde...", "");
-    if ( (!oldUser.equals(currentUser)) && (!oldUser.equals("")) )
-    {
-      logger.log("INFO", "A conta logada atualmente "
-             + "é diferente daquela da última sessão. Salvando "
-             + "os dados atuais em Cache...");
-      FileIO fio = new FileIO();
-      File gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + oldUser + "/" + currentGame);
-      if (gameCache.exists())
-      {
-        fio.excluir(gameCache, false);
-      }
-      gameCache.mkdirs();
-      File syncProps = new File(DexCraftFiles.gameCache.toString() + "/" + oldUser + "/syncproperties.json");
-      if(!syncProps.exists())
-      {
-        fio.copiar(DexCraftFiles.syncPropsRoot, syncProps);
-      }
-      Thread backupTask = new Thread(()->
-      {
-        backupCache(ui, oldUser, currentGame);
-      });
-      backupTask.start();
-      while (backupTask.isAlive())
-      {
-        Init.changeStatus(ui, "Preparando perfil. Aguarde...", "");
-        try
-        {
-          Thread.sleep(500);
-        }
-        catch (InterruptedException ex)
-        {
-          logger.log(ex,"EXCEÇÃO em Validate.gameCache(DexUI, String)");
-        }
-      }
-      gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/" + currentGame + ".7z");
-      if (gameCache.exists())
-      {
-        Thread restoreTask = new Thread(()->
-        {
-          restoreCache(currentUser, currentGame);
-        });
-        restoreTask.start();
-        String statusMsg = "";
-        while (restoreTask.isAlive())
-        {
-          if(!ZipUtils.statusMessage.equals(statusMsg))
-          {
-            Init.changeStatus(ui, ZipUtils.statusMessage, "");
-          }
-          try
-          {
-            Thread.sleep(100);
-          }
-          catch (InterruptedException ex)
-          {
-            logger.log(ex,"EXCEÇÃO em Validate.gameCache(DexUI, String)");
-          }
-          statusMsg = ZipUtils.statusMessage;
-        }
-      }
-    }
-    else
-    {
-      File gameCache = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/" + currentGame);
-      if (!gameCache.exists())
-      {
-        logger.log("INFO","Diretório de cache de jogo não encontrado. Gerando um novo...");
-        gameCache.mkdirs();
-      }
-      File syncProps = new File(DexCraftFiles.gameCache.toString() + "/" + currentUser + "/syncproperties.json");
-      if(!syncProps.exists())
-      {
-        FileIO fio = new FileIO();
-        logger.log("INFO","SyncProps não encontrado. Gerando um novo...");
-        fio.copiar(DexCraftFiles.syncPropsRoot, syncProps);
-      }
-    }
-    logger.log("INFO","Cache validado.");
-  }
-
-  /**
-   * Performs the backup preparation to change the logged account.
-   * @param ui the User Interface instance
-   * @param user the username needed to backup
-   * @param game the client game that need to be backuped
-   */
-  public static void backupCache(DexUI ui, String user, String game)
-  {
-    taskList = SystemDTO.getDCLBkpDirectivesFull();
-    FileIO fio = new FileIO();
-    taskList.forEach((item)->
-    {
-      if (item.lastIndexOf(game) != -1)
-      {
-        String fileSrc = item.replace("\"", "");
-        Init.changeStatus(ui, "Preparando perfil... " + (taskList.indexOf(item)+1) + " / " + taskList.size(), "");
-        File destination = new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + fileSrc);
-        File src = new File(DexCraftFiles.launcherFolder.toString() + "/" + fileSrc);
-        if (src.exists())
-        {
-          fio.copiar(src, destination);
-          fio.excluir(src, false);
-        }
-      }
-    });
-    Init.changeStatus(ui, "Preparando perfil... " + taskList.size() + " / " + taskList.size(), "");
-    ZipUtils.compressWithPassword(new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game), GAME_CACHE_PASSWORD);
-    fio.excluir(new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game), true);
-  }
-
-
-  /**
-   * Performs the account restoration from changed logged account.
-   * @param user the username that needs to have their data restored
-   * @param game the game client data
-   */
-  public static void restoreCache(String user, String game)
-  {
-    File zipDir = new File (DexCraftFiles.gameCache.toString() + "/" + user + "/" + game);
-    File zipFile = new File(zipDir.toString() + ".7z");
-    if (zipFile.exists())
-    {
-      ZipUtils.extractWithPassword(game, zipDir, GAME_CACHE_PASSWORD);
-      FileIO fio = new FileIO();
-      fio.copiar(zipDir, new File(DexCraftFiles.launcherFolder + "/" + game));
-      fio.excluir(zipDir, true);
-      fio.excluir(zipFile, false);
-    }
-    else
-    {
-      logger.log("***ERRO***", "EXCEÇÃO em Validate.restoreCache() - ARQUIVO DE BACKUP NÃO ENCONTRADO." );
-      alerts.tryAgain();
-    }
-  }
-
-
-  /**
-   * Validates JRE Version.
-   * @param ui DexUI instance
-   * @return true if the method was performed with no errors.
-   */
-  public static boolean javaVersion(DexUI ui)
-  {
-    ui.resetProgress();
-    if (!isJavaVerified)
-    {
-      Init.changeStatus(ui, "Verificando Java...", "");
-      SystemRequirements req = new SystemRequirements();
-      if (!req.checkJavaVersion().equals(SystemDTO.getJavaVersion()))
-      {
-        logger.log("INFO", "Java desatualizado! (" + req.checkJavaVersion() + ")");
-        if (SessionDTO.isOfflineModeOn())
-        {
-          alerts.noComponents();
-        }
-        else
-        {
-          Download downloadJRE = new Download();
-          Thread threadDownloadJRE = new Thread(()->
-          {
-            downloadJRE.zipResource(UrlsDTO.getJREInstaller(), DexCraftFiles.tempFolder, DexCraftFiles.updateJREZip);
-          });
-          threadDownloadJRE.start();
-          while(threadDownloadJRE.isAlive())
-          {
-            try
-            {
-              Thread.sleep(1100);
-            }
-            catch (InterruptedException ex)
-            {
-              logger.log(ex, "EXCEÇÃO em Validate.launcher()");
-            }
-            logger.log("INFO", downloadJRE.getTimeEstimatedMsg());
-            Init.changeStatus(ui, "Baixando atualização do Java... "
-                      , downloadJRE.getTimeEstimatedMsg() );
-            ui.changeProgress(true, Double.parseDouble(downloadJRE.getProgressPercent().replace(",",".")), 35);
-          }
-          Init.changeStatus(ui, "Baixando atualização do Java... ", "100% concluído");
-          ui.changeProgress(true, 100, 35);
-          ui.resetProgress();
-          Init.changeStatus(ui, "Instalando Java...", "");
-          Install installJRE = new Install();
-          Thread threadInstallJRE = new Thread(()->
-          {
-            installJRE.downloadedZipResource(DexCraftFiles.updateJREZip, DexCraftFiles.tempFolder);
-          });
-          threadInstallJRE.start();
-          String checkFile = " ";
-          while(threadInstallJRE.isAlive())
-          {
-            if (!(installJRE.getInstallingFileName()).equals(""))
-            {
-              if (!installJRE.getInstallingFileName().equals(checkFile))
-              {
-                Init.changeStatus(ui, "Instalando Java... "
-                          , installJRE.getInstallingFileName() + ", "
-                          + installJRE.getInstallingFilePosition() + " / "
-                          + installJRE.getTotalFilesQuantity());
-                ui.changeProgress(true, Double.parseDouble(downloadJRE.getProgressPercent().replace(",",".")), 35);
-                checkFile = installJRE.getInstallingFileName();
-              }
-            }
-            try
-            {
-              Thread.sleep(10);
-            }
-            catch (InterruptedException ex)
-            {
-              logger.log(ex,"EXCEÇÃO em Validate.provisionedComponent()");
-            }
-          }
-          Thread jreInstallerThread = new Thread(()->
-          {
-            try
-            {
-              new ProcessBuilder("cmd", "/c", "start", "/wait", "jre.exe", "INSTALLCFG=C:\\DexCraft\\launcher\\temp\\java.settings.cfg")
-                    .directory(DexCraftFiles.tempFolder).start().waitFor();
-            }
-            catch (IOException | InterruptedException ex)
-            {
-              alerts.exceptionHandler(ex, "EXCEÇÃO em Validate.javaVersion(DexUI).jreInstallerThread()");
-            }
-          });
-          jreInstallerThread.start();
-          while(threadInstallJRE.isAlive())
-          {
-            Init.changeStatus(ui, "Executando atualização. Aguarde... "
-                          , installJRE.getTotalFilesQuantity() + " / "
-                          + installJRE.getTotalFilesQuantity());
-            ui.changeProgress(true, -1, 35);
-            try
-            {
-              Thread.sleep(1000);
-            }
-            catch (InterruptedException ex)
-            {
-              logger.log(ex,"EXCEÇÃO em Validate.provisionedComponent()");
-            }
-          }
-          ui.resetProgress();
-        }
-      }
-      logger.log("INFO", "Java Atualizado! (" + req.checkJavaVersion() + ")");
-      isJavaVerified = true;
-    }
-    return true;
-  }
-
 
 }

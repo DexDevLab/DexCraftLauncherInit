@@ -18,16 +18,13 @@ import org.apache.commons.io.IOUtils;
  */
 public class SystemRequirements
 {
-  public SystemRequirements()
-  {
-    SystemDTO.parseSystemAssets();
-  }
 
   /**
    * Check if System match the minimum requirements.
    */
   public void checkRequirements()
   {
+    SystemDTO.parseSystemAssets();
     logger.log("INFO", "Coletando dados da quantidade de RAM no computador...");
     logger.log("INFO", "O computador possui " + checkSystemRAMGB() + "GB de RAM instalados.");
     long reqMin = Long.parseLong(SystemDTO.getReqsMinimumRAM());

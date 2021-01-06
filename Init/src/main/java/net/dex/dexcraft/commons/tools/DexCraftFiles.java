@@ -51,6 +51,9 @@ public class DexCraftFiles
    */
   public static File logLock = new File (logFolder + "/log.dc");
 
+  /** File which identifies if the Music Player Service is running. **/
+  public static File playerLock = new File(launcherFolder + "/player.dc");
+
   /** File used to identify if Init is present. **/
   public static File integrityCheckInit = new File (launcherFolder + "/DexCraftLauncherInit.jar");
   /** File used to identify if Launcher is present. **/

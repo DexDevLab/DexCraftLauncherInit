@@ -26,6 +26,7 @@ public class SystemDTO
   private static String speedTestFileURL = "null";
 
   //******************Backup System assets *************************//
+  private static String dcbsSyncTime = "999";
   private static List<String> dclBkpDirectivesFull = new ArrayList<>();
   private static List<String> dclBkpDirectivesPartial = new ArrayList<>();
 
@@ -83,6 +84,15 @@ public class SystemDTO
   private static void parseSpeedTestFileURL(String value)
   {
     speedTestFileURL = value;
+  }
+
+  /**
+   * PARSE Background Services time synchronization, in minutes.
+   * @param value the JSON read output.
+   */
+  private static void parseDCBSSyncTime(String value)
+  {
+    dcbsSyncTime = value;
   }
 
   /**
@@ -172,6 +182,15 @@ public class SystemDTO
   }
 
   /**
+   * GET Background Services time synchronization, in minutes.
+   * @return the time syncronization.
+   */
+  public static String getDCBSSyncTime()
+  {
+    return dcbsSyncTime;
+  }
+
+  /**
    * GET partial backup list from DTO.
    * @return the list
    */
@@ -205,6 +224,7 @@ public class SystemDTO
       parseJavaVersion(json.readValue(DexCraftFiles.coreFile, "Installer", "JavaVersion"));
       parseMinimumMbpsUploadSpeed(json.readValue(DexCraftFiles.coreFile, "BackupService", "MinimumMbpsUploadSpeed"));
       parseSpeedTestFileURL(json.readValue(DexCraftFiles.coreFile, "BackupService", "SpeedTestFileURL"));
+      parseDCBSSyncTime(json.readValue(DexCraftFiles.coreFile, "BackgroundServices", "DCBSSyncTime"));
       parseDCLBkpDirectivesFull(json.readList(DexCraftFiles.coreFile, "BackupService", "DCLBkpDirectivesFull"));
       parseDCLBkpDirectivesPartial(json.readList(DexCraftFiles.coreFile, "BackupService", "DCLBkpDirectivesPartial"));
 

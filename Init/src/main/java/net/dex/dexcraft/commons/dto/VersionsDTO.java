@@ -311,7 +311,7 @@ public class VersionsDTO
    */
   public static void setDexCraftLauncherClientVersion(String version)
   {
-    json.editValue(DexCraftFiles.launcherProperties, "Versions", "DexCraftLauncherClientVersion", version);
+    json.editValue(DexCraftFiles.launcherProperties, "Versions", "DexCraftLauncherVersion", version);
     parseDexCraftLauncherClientVersion(version);
   }
 

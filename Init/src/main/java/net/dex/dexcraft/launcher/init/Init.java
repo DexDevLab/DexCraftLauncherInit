@@ -24,6 +24,7 @@ import javafx.stage.StageStyle;
 import net.dex.dexcraft.commons.Commons;
 import net.dex.dexcraft.commons.check.OfflineMode;
 import net.dex.dexcraft.commons.check.SystemRequirements;
+import net.dex.dexcraft.commons.dto.UrlsDTO;
 import net.dex.dexcraft.commons.tools.Close;
 import net.dex.dexcraft.commons.tools.DexCraftFiles;
 import net.dex.dexcraft.commons.tools.DexUI;
@@ -36,7 +37,7 @@ import net.dex.dexcraft.launcher.init.services.Validate;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.1.3-210101-602
+  * @version v2.2.1-210105-628
   *
   * Preloader Class with splash screen.
   */
@@ -130,7 +131,6 @@ public class Init extends Application
           @Override
           protected Boolean call() throws Exception
           {
-
             // Check if another instance is running
             Validate.instance("Init");
 
@@ -139,9 +139,9 @@ public class Init extends Application
             logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");
             logger.setLogNameFormat("yyyy-MM-dd--HH.mm.ss");
             logger.setLogDir(DexCraftFiles.logFolder);
-            logger.log("INFO", "Logger inicializado.");
-            //DexCraft Commons logger binding
+             //DexCraft Commons logger binding
             Commons.setLogger(logger);
+            logger.log("INFO", "Logger inicializado.");
 
             changeStatus(preloaderUI, "Iniciando...", "");
 
@@ -162,6 +162,8 @@ public class Init extends Application
               //Performs CoreFile download
               Download downloadCf = new Download();
               downloadCf.coreFile();
+
+              UrlsDTO.parseURLs();
 
               preloaderUI.changeProgress(true, 40, 30);
               changeStatus(preloaderUI, "Verificando o sistema. Aguarde...", "");

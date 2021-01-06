@@ -345,7 +345,7 @@ public class FtpUtils
   }
 
 
-  /**
+   /**
    * Uploads a single file to the FTP Server.
    * @param remoteDestPath the remote directory destination relative path.<br>
    * This directory will be verified before trying to upload file into it. If it
@@ -359,10 +359,21 @@ public class FtpUtils
     File localFile = new File(localFilePath);
     try (InputStream inputStream = new FileInputStream(localFile))
     {
+      File check = new File(getWorkingDir() + "/" + remoteDestPath + "/" + localFile.getName());
+      File checkOld = new File(getWorkingDir() + "/" + remoteDestPath + "/" + localFile.getName() + ".old");
+      if (fileExists(checkOld))
+      {
+        ftp.deleteFile(checkOld.toString());
+      }
+      if (fileExists(check))
+      {
+        ftp.rename(check.toString(), checkOld.toString());
+      }
       ftp.setFileType(FTP.BINARY_FILE_TYPE);
-      boolean upload = ftp.storeFile(getWorkingDir() + "/" + remoteDestPath + "/" + localFile.getName(), inputStream);
+      boolean upload = ftp.storeFile(check.toString(), inputStream);
       if (upload)
       {
+        ftp.deleteFile(checkOld.toString());
         logger.log("INFO", "FTP: Arquivo " + localFile.getName() + " enviado com sucesso para " + getWorkingDir() + "/" + remoteDestPath + ".");
         return true;
       }
@@ -412,7 +423,7 @@ public class FtpUtils
           File check = new File(getWorkingDir() + "/" + remoteDestPath + "/" + localFile.getName());
           ftp.sendCommand("SIZE", check.toString());
           reply = ftp.getReplyString();
-          if (!reply.contains("File"))
+          if ( (!reply.contains("File")) && (!reply.contains("transferred")) )
           {
             reply = reply.trim();
             reply = reply.substring(4, reply.length());
@@ -533,7 +544,7 @@ public class FtpUtils
   }
 
 
-  /**
+   /**
    * Updates the transfer progress using proper byte and time measures.
    * @param progressPercent the progress, in percent.
    * @param fileSize the download size.
@@ -600,16 +611,41 @@ public class FtpUtils
         totalSecondsRemaining /= 3600;
         totalSecondsRemaining = Math.round(totalSecondsRemaining);
         hoursRemaining = (int) totalSecondsRemaining;
-        setEstimatedHours(hoursRemaining + " hora(s), ");
+        if (hoursRemaining >= 9999)
+        {
+          hoursRemaining = 0;
+        }
+        else
+        {
+          setEstimatedHours(hoursRemaining + " hora(s), ");
+        }
       }
       if (totalSecondsRemaining >= 60)
       {
         totalSecondsRemaining /= 60;
         totalSecondsRemaining = Math.round(totalSecondsRemaining);
         minutesRemaining = (int) totalSecondsRemaining;
-        setEstimatedMinutes(minutesRemaining + " minuto(s) e ");
+        if (minutesRemaining >= 9999)
+        {
+          minutesRemaining = 0;
+        }
+        else
+        {
+          setEstimatedMinutes(minutesRemaining + " minuto(s) e ");
+        }
       }
-      setEstimatedSeconds(totalSecondsRemaining + " segundo(s) ");
+      if (totalSecondsRemaining > 99)
+      {
+        totalSecondsRemaining = 0;
+      }
+      else
+      {
+        setEstimatedSeconds(totalSecondsRemaining + " segundo(s) ");
+      }
+      if ( (hoursRemaining == 0) && (minutesRemaining == 0) && (totalSecondsRemaining == 0) )
+      {
+        setTimeEstimatedMsg("Concluindo...");
+      }
       // next line follows an example of message to estimated time and their values //
       setTimeEstimatedMsg(getEstimatedHours() + getEstimatedMinutes() + getEstimatedSeconds()
           + "restante(s), " + getTransferredSize() + " / " + getTotalSize() + ", " + getTransferSpeed()

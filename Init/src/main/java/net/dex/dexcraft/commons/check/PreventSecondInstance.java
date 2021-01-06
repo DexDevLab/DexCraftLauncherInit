@@ -26,6 +26,7 @@ public class PreventSecondInstance
         if (!instanceStatus)
         {
           SessionDTO.setDexCraftLauncherInitInstance(true);
+          instanceStatus = true;
         }
         break;
       case "Client":

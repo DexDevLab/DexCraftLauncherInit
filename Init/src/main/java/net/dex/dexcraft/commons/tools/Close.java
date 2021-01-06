@@ -2,6 +2,7 @@ package net.dex.dexcraft.commons.tools;
 
 
 import java.io.File;
+import javafx.application.Platform;
 import static net.dex.dexcraft.commons.Commons.logger;
 import net.dex.dexcraft.commons.dto.SessionDTO;
 
@@ -26,6 +27,7 @@ public class Close
     clean.excluir(DexCraftFiles.tempFolder, true);
     SessionDTO.setDexCraftLauncherClientInstance(false);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
+    Platform.exit();
   }
 
   /**
@@ -36,9 +38,11 @@ public class Close
     logger.log("INFO", "Fechando DexCraft Launcher Client...");
     clean.excluir(DexCraftFiles.adminCheck, false);
     clean.excluir(DexCraftFiles.tempFolder, true);
+    clean.excluir(DexCraftFiles.playerLock, false);
     SessionDTO.setDexCraftLauncherInitInstance(true);
     SessionDTO.setDexCraftLauncherClientInstance(true);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
+    Platform.exit();
   }
 
   /**
@@ -54,6 +58,7 @@ public class Close
     SessionDTO.setDexCraftLauncherClientInstance(false);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
     SessionDTO.setSessionPassword("null");
+    System.exit(0);
   }
 
   /**
@@ -69,6 +74,7 @@ public class Close
     SessionDTO.setDexCraftLauncherClientInstance(false);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
     SessionDTO.setSessionPassword("null");
+    System.exit(0);
   }
 
   /**
@@ -84,6 +90,7 @@ public class Close
     SessionDTO.setDexCraftLauncherClientInstance(false);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
     SessionDTO.setSessionPassword("null");
+    System.exit(0);
   }
 
 

@@ -311,3 +311,31 @@ Gladly back to Github!
 * DexCraft Launcher Init Services:
 	 * Validate.java:
 		* Code refactoring for better readability.
+## v2.2.1-210105-628
+* DexCraft Commons:
+	* Since I'm not using it as a external library yet, I decided make some "cleaning", removing unecessairy classes
+I don't use in Init:
+		* SqlDAO.java removed
+		* SqlDTO.java removed
+		* Crypto.java removed 
+	* AdminExecution.java:
+		* Logger calls removed since in Init, the Admin Execution utility is called before logging initialization.
+	* PreventSecondInstance.java:
+		* Fixed bug where starting Client at first time marks as another instance was running already.
+	* SystemRequirements.java:
+		* Fixed bug where Init couldn't load System Requirements since it was needing CoreFile in the constructor.
+	* VersionsDTO.java:
+		* Fixed bug where the Client version wasn't updating.  
+	* Close.java:
+		* Added exit call to closing methods.
+	* DexCraftFiles.java:
+		* Added lock file to stop Launcher music player.
+	* FtpUtils.java:
+		* Added method for preventing accidental losing of previous file in folder while uploading a new one.
+* Init:
+	* Init.java: 
+		* Changed logger position to match proper initialization
+		* Added URL parsing on initialization
+	* Launcher Init Services: 
+		* Validate.java:
+			* Removed non used methods. 
