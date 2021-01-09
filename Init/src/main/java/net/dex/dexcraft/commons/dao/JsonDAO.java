@@ -52,6 +52,7 @@ public class JsonDAO
       }
       catch (IOException ex)
       {
+
         alerts.exceptionHandler(ex, "EXCEÇÃO EM JSONUtility.getValues(File, String, String)");
       }
     }

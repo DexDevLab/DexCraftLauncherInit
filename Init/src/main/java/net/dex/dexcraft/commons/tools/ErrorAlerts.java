@@ -616,9 +616,7 @@ public class ErrorAlerts
     exceptionHandlerThrowable = ex;
     exceptionHandlerContext = exceptionMessage;
     Platform.runLater(exceptionhandler);
-    logger.log("INFO", "Aguardando resposta do usuário...");
     alertLock(exceptionhandler);
-    logger.log("INFO", "Alerts.exceptionHandler(Throwable, String) finalizado");
     Close.withErrors();
   }
 
@@ -636,14 +634,6 @@ public class ErrorAlerts
       alerts.setTitle("ERRO");
       alerts.setHeaderText("EXCEÇÃO - " + exceptionHandlerThrowable.getMessage());
       alerts.setContentText(exceptionHandlerContext);
-      alerts.getButtonTypes().clear();
-      ButtonType btnok = new ButtonType("OK");
-      alerts.getButtonTypes().add(btnok);
-      Optional<ButtonType> result = alerts.showAndWait();
-      if (result.get() == btnok)
-      {
-        Close.withErrors();
-      }
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
       stage.setOnCloseRequest((e) -> {Close.withErrors();});

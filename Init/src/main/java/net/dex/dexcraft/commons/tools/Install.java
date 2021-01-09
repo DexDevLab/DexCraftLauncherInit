@@ -116,13 +116,9 @@ public class Install
         {
           ZipArchiveEntry entry = zipEntries.nextElement();
           File outFile = new File(destinationDir,entry.getName());
-          if (!outFile.getParentFile().exists())
-          {
-            outFile.mkdirs();
-          }
           if (entry.isDirectory())
           {
-            outFile.mkdir();
+            outFile.mkdirs();
           }
           else
           {
@@ -142,6 +138,7 @@ public class Install
             InputStream zipStream = null;
             OutputStream outFileStream = null;
             zipStream = zipFile.getInputStream(entry);
+            FileUtils.touch(outFile);
             outFileStream = new FileOutputStream(outFile);
             try
             {

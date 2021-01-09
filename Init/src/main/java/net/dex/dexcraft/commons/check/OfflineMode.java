@@ -47,17 +47,25 @@ public class OfflineMode
    */
   private static void testConnection()
   {
-    Connections con = new Connections();
-    logger.log("INFO", "Testando conexão com a internet...");
-    String ping = con.getPing("www.google.com.br");
-    if (ping.equals("99999"))
+    if (!SessionDTO.isConnectionTestDisabled())
     {
-      internetCheckException();
+      Connections con = new Connections();
+      logger.log("INFO", "Testando conexão com a internet...");
+      String ping = con.getPing("www.google.com.br");
+      if (ping.equals("99999"))
+      {
+        internetCheckException();
+      }
+      else
+      {
+        logger.log("INFO", "Detectada conexão com a internet.");
+      }
     }
     else
     {
-      logger.log("INFO", "Detectada conexão com a internet.");
+      keepOfflineMode = false;
     }
+
 //    try
 //    {
 //      logger.log("INFO", "Testando conexão com a internet...");

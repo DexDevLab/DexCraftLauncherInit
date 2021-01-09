@@ -37,7 +37,7 @@ import net.dex.dexcraft.launcher.init.services.Validate;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.2.2-210106-629
+  * @version v2.3.0-210109-650
   *
   * Preloader Class with splash screen.
   */
@@ -133,7 +133,6 @@ public class Init extends Application
           {
             // Check if another instance is running
             Validate.instance("Init");
-
             //Logger settings
             logger.setLogLock(DexCraftFiles.logLock);
             logger.setMessageFormat("yyyy/MM/dd HH:mm:ss");

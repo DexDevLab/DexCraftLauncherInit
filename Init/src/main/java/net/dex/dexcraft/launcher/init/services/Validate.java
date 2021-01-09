@@ -14,9 +14,9 @@ import net.dex.dexcraft.commons.dto.VersionsDTO;
 import net.dex.dexcraft.commons.tools.DexCraftFiles;
 import net.dex.dexcraft.commons.tools.DexUI;
 import net.dex.dexcraft.commons.tools.Download;
-import net.dex.dexcraft.commons.tools.FileIO;
 import net.dex.dexcraft.commons.tools.Install;
 import net.dex.dexcraft.launcher.init.Init;
+import org.apache.commons.io.FileUtils;
 
 
 /**
@@ -88,11 +88,8 @@ public class Validate
   */
   public static void cache()
   {
-    if (DexCraftFiles.tempFolder.exists())
-    {
-      FileIO fio = new FileIO();
-      fio.excluir(DexCraftFiles.tempFolder, true);
-    }
+    FileUtils.deleteQuietly(DexCraftFiles.tempFolder);
+    FileUtils.deleteQuietly(DexCraftFiles.playerLock);
     SessionDTO.setDexCraftLauncherClientInstance(false);
     SessionDTO.setDexCraftBackgroundServicesInstance(false);
   }
