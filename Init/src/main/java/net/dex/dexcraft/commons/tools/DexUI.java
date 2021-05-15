@@ -364,7 +364,6 @@ public class DexUI
       {
         stop();
       }
-
     }
   }
 
@@ -412,7 +411,7 @@ public class DexUI
       // Time between progress bar changes. Increase
         // it to have a bigger gap between progress
         // transitions.
-      Thread.sleep(250);
+      Thread.sleep(200);
       double progressValue = 0;
       if (isValuePercent)
       {
@@ -469,7 +468,7 @@ public class DexUI
   public void resetProgress()
   {
     globalProgressValue = 0.0;
-    changeProgress(true, 0, 10);
+    changeProgress(true, 0, 5);
   }
 
   /**

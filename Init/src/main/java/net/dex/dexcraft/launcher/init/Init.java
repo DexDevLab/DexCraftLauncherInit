@@ -37,7 +37,7 @@ import net.dex.dexcraft.launcher.init.services.Validate;
 /**
   * @author Dex
   * @since 30/04/2020
-  * @version v2.3.0-210109-650
+  * @version v2.4.3-210116-662
   *
   * Preloader Class with splash screen.
   */
@@ -144,18 +144,18 @@ public class Init extends Application
 
             changeStatus(preloaderUI, "Iniciando...", "");
 
-            preloaderUI.changeProgress(true, 10, 30);
+            preloaderUI.changeProgress(true, 10, 10);
             logger.log("INFO", "Preparando Cache...");
 
             // Prepares the program cache folder and files
             Validate.cache();
 
-            preloaderUI.changeProgress(true, 20, 30);
+            preloaderUI.changeProgress(true, 20, 10);
 
             // Do tasks below only if launcher isn't on Offline Mode
             if(!OfflineMode.IsRunning())
             {
-              preloaderUI.changeProgress(true, 30, 30);
+              preloaderUI.changeProgress(true, 30, 10);
               changeStatus(preloaderUI, "Baixando Corefile...", "");
 
               //Performs CoreFile download
@@ -164,20 +164,20 @@ public class Init extends Application
 
               UrlsDTO.parseURLs();
 
-              preloaderUI.changeProgress(true, 40, 30);
+              preloaderUI.changeProgress(true, 40, 10);
               changeStatus(preloaderUI, "Verificando o sistema. Aguarde...", "");
 
               //Check System Requirements
               SystemRequirements req = new SystemRequirements();
               req.checkRequirements();
 
-              preloaderUI.changeProgress(true, 50, 30);
+              preloaderUI.changeProgress(true, 50, 10);
               changeStatus(preloaderUI, "Verificando recursos...", "");
 
               // Check if resouce folder is downloaded and updated
               Validate.provisionedComponent(preloaderUI, "Resources", 60);
 
-              preloaderUI.changeProgress(true, 70, 30);
+              preloaderUI.changeProgress(true, 70, 10);
               changeStatus(preloaderUI, "Verificando versão do DexCraft Launcher...", "");
 
               // Check and update Client version if needed
@@ -188,7 +188,7 @@ public class Init extends Application
               // Check and update DCBS version if needed
               Validate.provisionedComponent(preloaderUI, "DCBS", 90);
             }
-            preloaderUI.changeProgress(true, 95, 30);
+            preloaderUI.changeProgress(true, 95, 10);
 
             // Interrupt Launcher if CoreFile is absent
             if(!DexCraftFiles.coreFile.exists())
@@ -198,7 +198,7 @@ public class Init extends Application
             }
 
             changeStatus(preloaderUI, "Abrindo DexCraft Launcher...", "");
-            preloaderUI.changeProgress(true, 100, 30);
+            preloaderUI.changeProgress(true, 100, 10);
             logger.log("INFO", "JAVAFX: Splash Screen terminada");
             return true;
           }

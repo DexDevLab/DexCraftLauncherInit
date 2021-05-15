@@ -538,7 +538,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.withErrors();});
+      stage.setOnCloseRequest((e) -> {Close.quit();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro de Conexão");
       alerts.setHeaderText("Baixa Velocidade de Upload");
@@ -552,7 +552,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnnao)
       {
-        Close.withErrors();
+        Close.quit();
       }
       return null;
     }
@@ -564,11 +564,11 @@ public class ErrorAlerts
   public void noComponents()
   {
     FutureTask<String> noComponents = new FutureTask<>(new NoComponents());
-    logger.log("INFO", "Exibindo Alerts.NoSpd()...");
+    logger.log("INFO", "Exibindo Alerts.NoComponents()...");
     Platform.runLater(noComponents);
     logger.log("INFO", "Aguardando resposta do usuário...");
     alertLock(noComponents);
-    logger.log("INFO", "Alerts.NoSpd() finalizado");
+    logger.log("INFO", "Alerts.NoComponents() finalizado");
   }
 
   /**
@@ -585,7 +585,7 @@ public class ErrorAlerts
       alerts.initModality(Modality.APPLICATION_MODAL);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.withErrors();});
+      stage.setOnCloseRequest((e) -> {Close.quit();});
       alerts.getButtonTypes().clear();
       alerts.setTitle("Erro no Client");
       alerts.setHeaderText("Componentes Ausentes");
@@ -596,7 +596,7 @@ public class ErrorAlerts
       Optional<ButtonType> result = alerts.showAndWait();
       if (result.get() == btnok)
       {
-        Close.withErrors();
+        Close.quit();
       }
       return null;
     }
@@ -617,7 +617,7 @@ public class ErrorAlerts
     exceptionHandlerContext = exceptionMessage;
     Platform.runLater(exceptionhandler);
     alertLock(exceptionhandler);
-    Close.withErrors();
+//    Close.withErrors();
   }
 
   /**
@@ -636,7 +636,7 @@ public class ErrorAlerts
       alerts.setContentText(exceptionHandlerContext);
       Stage stage = (Stage) alerts.getDialogPane().getScene().getWindow();
       stage.getIcons().add(getImage());
-      stage.setOnCloseRequest((e) -> {Close.withErrors();});
+      stage.setOnCloseRequest((e) -> {e.consume();});
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw);
       exceptionHandlerThrowable.printStackTrace(pw);

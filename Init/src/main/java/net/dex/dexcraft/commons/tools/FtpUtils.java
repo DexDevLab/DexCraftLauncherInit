@@ -262,6 +262,7 @@ public class FtpUtils
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.connect()");
     }
   }
@@ -297,6 +298,7 @@ public class FtpUtils
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.connect()");
     }
   }
@@ -319,6 +321,25 @@ public class FtpUtils
     }
     catch (IOException ex)
     {
+      disconnect();
+      alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.checkFolder(String)");
+    }
+  }
+
+  /**
+   * Renames a file or folder.
+   * @param from the name of the file to rename (absolute path)
+   * @param to the new name of the file (absolute path)
+   */
+  public void renameFile(String from, String to)
+  {
+    try
+    {
+      ftp.rename(from, to);
+    }
+    catch (IOException ex)
+    {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.checkFolder(String)");
     }
   }
@@ -339,6 +360,7 @@ public class FtpUtils
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.fileExists(String)");
     }
     return false;
@@ -380,13 +402,16 @@ public class FtpUtils
     }
     catch (FileNotFoundException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.uploadFile(String, String, String)");
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.uploadFile(String, String, String)");
     }
     logger.log("***ERRO***", "FALHA CRÍTICA NO PROCESSO DE UPLOAD DO ARQUIVO " + localFilePath);
+    disconnect();
     alerts.tryAgain();
     return false;
   }
@@ -442,6 +467,7 @@ public class FtpUtils
       }
       catch (InterruptedException ex)
       {
+        disconnect();
         alerts.exceptionHandler(ex, "EXCEÇÃO em FtpUtils.uploadFileWithProgress(String, String)");
       }
     }
@@ -470,11 +496,13 @@ public class FtpUtils
       if (!success)
       {
         logger.log("***ERRO***", "FTP: ERRO DESCONHECIDO DURANTE O DOWNLOAD.");
+        disconnect();
         alerts.tryAgain();
       }
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO EM FtpUtils.downloadFile(String, File)");
     }
     return false;
@@ -495,6 +523,7 @@ public class FtpUtils
       if (!fileExists(check))
       {
         logger.log("***ERRO***", "FTP: ARQUIVO SOLICITADO NÃO ENCONTRADO.");
+        disconnect();
         alerts.tryAgain();
       }
       FTPFile file = ftp.mlistFile(getWorkingDir() + "/" + remoteSourceDir + "/" + destinationFile.getName());
@@ -531,6 +560,7 @@ public class FtpUtils
         }
         catch (InterruptedException ex)
         {
+          disconnect();
           alerts.exceptionHandler(ex, "EXCEÇÃO EM FtpUtils.downloadFileWithProgress(String, File)");
         }
       }
@@ -539,6 +569,7 @@ public class FtpUtils
     }
     catch (IOException ex)
     {
+      disconnect();
       alerts.exceptionHandler(ex, "EXCEÇÃO EM FtpUtils.downloadFileWithProgress(String, File)");
     }
   }

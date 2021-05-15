@@ -45,14 +45,14 @@ public class Validate
     switch (instanceName)
     {
       case "Init":
-        if (DexCraftFiles.logLock.exists())
+        if (SessionDTO.getDexCraftLauncherInitStatus())
         {
-          SessionDTO.setDexCraftLauncherInitInstance(true);
           isInstanceInvalid = true;
         }
         else
         {
           isInstanceInvalid = false;
+          SessionDTO.setDexCraftLauncherInitInstance(true);
         }
         break;
       case "Client":
@@ -246,7 +246,7 @@ public class Validate
       {
         Init.changeStatus(ui, "Baixando " + programName + "... "
                 , downloadComponent.getTimeEstimatedMsg() );
-        ui.changeProgress(true, Double.parseDouble(downloadComponent.getProgressPercent().replace(",",".")), 35);
+        ui.changeProgress(true, Double.parseDouble(downloadComponent.getProgressPercent().replace(",",".")), 15);
       }
       else
       {
@@ -257,13 +257,13 @@ public class Validate
     if (componentName.contains("Game"))
     {
       Init.changeStatus(ui, "Baixando " + programName + "...", "100% concluído");
-      ui.changeProgress(true, 100, 35);
+      ui.changeProgress(true, 100, 15);
       ui.resetProgress();
     }
     else
     {
       Init.changeStatus(ui, "Baixando " + programName + "..." + "100% concluído", "");
-      ui.changeProgress(true, uiProgressValue, 30);
+      ui.changeProgress(true, uiProgressValue, 10);
     }
   }
 
@@ -336,7 +336,7 @@ public class Validate
                     , installComponent.getInstallingFileName() + ", "
                     + installComponent.getInstallingFilePosition() + " / "
                     + installComponent.getTotalFilesQuantity());
-            ui.changeProgress(true, Double.parseDouble(installComponent.getProgressPercent().replace(",",".")), 35);
+            ui.changeProgress(true, Double.parseDouble(installComponent.getProgressPercent().replace(",",".")), 15);
           }
           else
           {
@@ -361,7 +361,7 @@ public class Validate
       Init.changeStatus(ui, "Instalando " + programName + "... "
                     , installComponent.getTotalFilesQuantity() + " / "
                     + installComponent.getTotalFilesQuantity());
-      ui.changeProgress(true, 100, 35);
+      ui.changeProgress(true, 100, 15);
       ui.resetProgress();
     }
     else
